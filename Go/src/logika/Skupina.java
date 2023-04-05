@@ -1,13 +1,20 @@
-package splosno;
+package logika;
 
-import java.awt.Point;
-import java.util.Set;
+import java.util.Arrays;
 
-public class Zeton {
+public class Skupina {
 	
-	private int igralec;
-	private int x, y;
-	private Set<Point> liberties;
-	private Set<Point> skupina;
+	public int[] x;
+	public int[] y;
+	
+	public Skupina (int[] x, int y[]) {
+		this.x = x;
+		this.y = y;
+	}
+	
+	@Override
+	public String toString() {
+		return "Vrsta [x=" + Arrays.toString(x) + ", y=" + Arrays.toString(y) + "]";
+	}
 	
 }
