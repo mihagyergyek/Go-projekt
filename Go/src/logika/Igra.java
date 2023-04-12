@@ -1,5 +1,6 @@
 package logika;
 
+import java.awt.Point;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -24,15 +25,63 @@ public class Igra {
 		naPotezi = Igralec.CRNI;
 	}
 	
-	public Polje[][] najdiSkupino(int x, int y, Polje igralec, Polje[][] skupina) {
-	    if (plosca[x][y] == igralec && skupina[x][y] == Polje.PRAZNO) {
-	        skupina[x][y] = plosca[x][y];
-	        if (x+1 < N) najdiSkupino(x+1, y, igralec, skupina);
-	        if (x-1 > -1) najdiSkupino(x-1, y, igralec, skupina);
-	        if (y+1 < N) najdiSkupino(x, y+1, igralec, skupina);
-	        if (y-1 > -1) najdiSkupino(x, y-1, igralec, skupina);
-	    }
-	    return skupina;
+	public List<Point> sosedi(Point zeton){
+		List<Point> sosedi = new LinkedList<Point>();
+		int x = zeton.x;
+		int y = zeton.y;
+		if (x-1 > -1) {
+			Point p = new Point(x-1,y);
+			sosedi.add(p);
+		}
+		if (x+1 < N) {
+			Point p = new Point(x+1,y);
+			sosedi.add(p);
+		}
+		if (y-1 > -1) {
+			Point p = new Point(x,y-1);
+			sosedi.add(p);
+		}
+		if (x+1 < N) {
+			Point p = new Point(x,y+1);
+			sosedi.add(p);
+		}
+		return sosedi;
+	}
+	
+	public List<Point> liberties(Point zeton){
+		List<Point> sosedi = sosedi(zeton);
+		List<Point> liberties = new LinkedList<Point>();
+		for (Point p : sosedi) {
+			if (plosca[p.x][p.y] == Polje.PRAZNO) liberties.add(p);
+		}
+		return liberties;
+	}
+	
+	public List<Point> skupina(Point zeton, List<Point> pregledane){
+		List<Point> skupina = new LinkedList<Point>();
+		skupina.add(zeton);
+		pregledane.add(zeton);
+		List<Point> sosedi = sosedi(zeton);
+		for (Point p : sosedi) {
+			if (plosca[zeton.x][zeton.y] == plosca[p.x][p.y] && !pregledane.contains(p)) {
+				skupina.add(p);
+				pregledane.add(p);
+				skupina.addAll(skupina(p, pregledane));
+			}
+		}
+		return skupina;
+	}
+	
+	public List<LinkedList<Point>> skupineNaPlosci(){
+		List<Point> pregledane = new LinkedList<Point>();
+		List<LinkedList<Point>> skupine = new LinkedList<LinkedList<Point>>();
+		for (int i = 0; i < N; i++) {
+			for(int j = 0; j < N; j++) {
+				Point p = new Point(i,j);
+				skupine.add((LinkedList<Point>) skupina(p, pregledane));
+			}
+		}
+		return skupine;
 	}
 	
 	/**

@@ -15,7 +15,7 @@ import javax.swing.JOptionPane;
 @SuppressWarnings("serial")
 public class Okno extends JFrame implements ActionListener {
 	
-	protected Platno platno;
+	public Platno platno;
 	
 	private JMenuItem menuClovekClovek, menuClovekRacunalnik, menuRacunalnikClovek, menuRacunalnikRacunalnik;
 	private JMenuItem menuBarvaPlosce, menuBarvaCrt, menuBarvaPrvegaIgralca, menuBarvaDrugegaIgralca;
@@ -24,7 +24,7 @@ public class Okno extends JFrame implements ActionListener {
 	public Okno() {
 		super();
 		setTitle("Igra Capture GO");
-		//platno = new Platno(800, 800);
+		platno = new Platno(800, 800);
 		add(platno);
 		
 		JMenuBar menubar = new JMenuBar();
@@ -99,7 +99,7 @@ public class Okno extends JFrame implements ActionListener {
 		else if (objekt == menuBarvaPlosce) {
 			Color barva = JColorChooser.showDialog(this, "Izberi barvo plošče", platno.barvaPlosce);
 			if (barva != null) {
-				platno.barvaPlosce = barva;
+				platno.setBackground(barva);
 				repaint();
 			}
 		}
