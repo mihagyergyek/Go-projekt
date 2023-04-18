@@ -27,6 +27,16 @@ public class Igra {
 		naPotezi = Igralec.CRNI;
 	}
 	
+	public Igra(Igra igra) {
+		this.plosca = new Polje[N][N];
+		for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+		this.plosca[i][j] = igra.plosca[i][j];
+			}
+		}
+		this.naPotezi = igra.naPotezi;
+	}
+	
 	public List<Point> sosedi(Point zeton){
 		List<Point> sosedi = new LinkedList<Point>();
 		int x = zeton.x;

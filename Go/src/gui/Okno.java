@@ -2,12 +2,16 @@ package gui;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.EnumMap;
 
 import javax.swing.JColorChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -22,18 +26,19 @@ public class Okno extends JFrame implements ActionListener {
 	
 	public Platno platno;
 	
+	
+	private JLabel status;
 	private JMenuItem menuClovekClovek, menuClovekRacunalnik, menuRacunalnikClovek, menuRacunalnikRacunalnik;
 	private JMenuItem menuBarvaPlosce, menuBarvaCrt, menuBarvaPrvegaIgralca, menuBarvaDrugegaIgralca;
 	private JMenuItem menuDebelinaCrt, menuVelikostZetonov;
 	
 	public Okno() {
 		super();
-		setTitle("Igra Capture GO");
+		this.setTitle("Igra Capture GO");
 		platno = new Platno();
-		add(platno);
 		
 		JMenuBar menubar = new JMenuBar();
-		setJMenuBar(menubar);
+		this.setJMenuBar(menubar);
 		
 		JMenu menuNovaIgra = dodajMenu(menubar, "Nova igra");
 		JMenu menuNastavitve = dodajMenu(menubar, "Nastavitve");
@@ -50,7 +55,29 @@ public class Okno extends JFrame implements ActionListener {
 		menuDebelinaCrt = dodajMenuItem(menuNastavitve, "Debelina crt ...");
 		menuVelikostZetonov = dodajMenuItem(menuNastavitve, "Velikost žetonov ...");
 		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		this.setLayout(new GridBagLayout());
+		GridBagConstraints platno_layout = new GridBagConstraints();
+		platno_layout.gridx = 0;
+		platno_layout.gridy = 0;
+		platno_layout.fill = GridBagConstraints.BOTH;
+		platno_layout.weightx = 1.0;
+		platno_layout.weighty = 1.0;
+		getContentPane().add(platno, platno_layout);
+		
+		// statusna vrstica za sporočila
+		status = new JLabel();
+		status.setFont(new Font(status.getFont().getName(),
+							    status.getFont().getStyle(),
+							    20));
+		GridBagConstraints status_layout = new GridBagConstraints();
+		status_layout.gridx = 0;
+		status_layout.gridy = 1;
+		status_layout.anchor = GridBagConstraints.CENTER;
+		getContentPane().add(status, status_layout);
+		
+		status.setText("Izberite igro!");
 	}
 	
 	private JMenu dodajMenu(JMenuBar menubar, String naslov) {
