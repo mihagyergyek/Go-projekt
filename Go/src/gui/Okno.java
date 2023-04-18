@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.EnumMap;
 
 import javax.swing.JColorChooser;
 import javax.swing.JFrame;
@@ -11,6 +12,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+
+import logika.Igralec;
+import vodja.Vodja;
+import vodja.VrstaIgralca;
 
 @SuppressWarnings("serial")
 public class Okno extends JFrame implements ActionListener {
@@ -24,7 +29,7 @@ public class Okno extends JFrame implements ActionListener {
 	public Okno() {
 		super();
 		setTitle("Igra Capture GO");
-		platno = new Platno(800, 800);
+		platno = new Platno();
 		add(platno);
 		
 		JMenuBar menubar = new JMenuBar();
@@ -65,19 +70,31 @@ public class Okno extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object objekt = e.getSource();
 		if (objekt == menuClovekClovek) {
-			
+			Vodja.vrstaIgralca = new EnumMap<Igralec,VrstaIgralca>(Igralec.class);
+			Vodja.vrstaIgralca.put(Igralec.CRNI, VrstaIgralca.C); 
+			Vodja.vrstaIgralca.put(Igralec.BELI, VrstaIgralca.C);
+			Vodja.novaIgra();
 		}
 		
 		else if (objekt == menuClovekRacunalnik) {
-			
+			Vodja.vrstaIgralca = new EnumMap<Igralec,VrstaIgralca>(Igralec.class);
+			Vodja.vrstaIgralca.put(Igralec.CRNI, VrstaIgralca.C); 
+			Vodja.vrstaIgralca.put(Igralec.BELI, VrstaIgralca.R);
+			Vodja.novaIgra();
 		}
 		
 		else if (objekt == menuRacunalnikClovek) {
-			
+			Vodja.vrstaIgralca = new EnumMap<Igralec,VrstaIgralca>(Igralec.class);
+			Vodja.vrstaIgralca.put(Igralec.CRNI, VrstaIgralca.R); 
+			Vodja.vrstaIgralca.put(Igralec.BELI, VrstaIgralca.C);
+			Vodja.novaIgra();
 		}
 		
 		else if (objekt == menuRacunalnikRacunalnik) {
-			
+			Vodja.vrstaIgralca = new EnumMap<Igralec,VrstaIgralca>(Igralec.class);
+			Vodja.vrstaIgralca.put(Igralec.CRNI, VrstaIgralca.R); 
+			Vodja.vrstaIgralca.put(Igralec.BELI, VrstaIgralca.R);
+			Vodja.novaIgra();
 		}
 		
 		else if (objekt == menuBarvaPrvegaIgralca) {

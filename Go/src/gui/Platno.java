@@ -16,6 +16,8 @@ import javax.swing.JPanel;
 
 import logika.Igra;
 import logika.Polje;
+import splosno.Poteza;
+import vodja.Vodja;
 
 @SuppressWarnings("serial")
 public class Platno extends JPanel implements MouseListener, MouseMotionListener, KeyListener{
@@ -30,16 +32,12 @@ public class Platno extends JPanel implements MouseListener, MouseMotionListener
 	protected double velikostZetonov;
 	protected final double PADDING = 50;
 	public static final Color BEIGE = new Color(217,179,130);
-	protected double razdaljaMedCrtami;
-	protected double v;
-	protected double s;
 	
-	private int zacetniX, stariX, klikX;
-	private int zacetniY, stariY, klikY;
+	private int klikX;
+	private int klikY;
 	
-	public Platno(int sirina, int visina) {
+	public Platno() {
 		super();
-		setPreferredSize(new Dimension(sirina, visina));
 		setBackground(BEIGE);
 		barvaPlosce = BEIGE;
 		barvaCrt = Color.BLACK;
@@ -51,27 +49,32 @@ public class Platno extends JPanel implements MouseListener, MouseMotionListener
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		addKeyListener(this);
-		razdaljaMedCrtami = (Math.min(sirina, visina) - 2 * PADDING)  / (Igra.N - 1);
-		s = sirina;
-		v = visina;
 	}
 	
-	public void nastaviPlosco(Polje[][] plosca) {
-		this.plosca = plosca;
-		repaint();
+	private double razdaljaMedCrtami() {
+		return (Math.min(getHeight(), getWidth()) - 2 * PADDING)  / (Igra.N - 1);
+	}
+	
+	private double velikostPolja() {
+		return Math.min(getHeight(), getWidth());
+	}
+	
+	@Override
+	public Dimension getPreferredSize() {
+		return new Dimension(800, 800);
 	}
 	
 	private void pobarvajCrno(Graphics2D g2, int i, int j) {
-		int x = round(i * razdaljaMedCrtami + PADDING - velikostZetonov / 2);
-		int y = round(j * razdaljaMedCrtami + PADDING - velikostZetonov / 2);
+		int x = round(i * razdaljaMedCrtami() + PADDING - velikostZetonov / 2);
+		int y = round(j * razdaljaMedCrtami() + PADDING - velikostZetonov / 2);
 		g2.setColor(barvaPrvegaIgralca);
 		g2.fillOval(x, y, (int)velikostZetonov, (int)velikostZetonov);
 		repaint();
 	}
 	
 	private void pobarvajBelo(Graphics2D g2, int i, int j) {
-		int x = round(i * razdaljaMedCrtami + PADDING - velikostZetonov / 2);
-		int y = round(j * razdaljaMedCrtami + PADDING - velikostZetonov / 2);
+		int x = round(i * razdaljaMedCrtami() + PADDING - velikostZetonov / 2);
+		int y = round(j * razdaljaMedCrtami() + PADDING - velikostZetonov / 2);
 		g2.setColor(barvaDrugegaIgralca);
 		g2.fillOval(x, y, (int)velikostZetonov, (int)velikostZetonov);
 		repaint();
@@ -82,16 +85,20 @@ public class Platno extends JPanel implements MouseListener, MouseMotionListener
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
 		g2.setStroke(debelinaCrt);
-		for (int i = 0; i <= Igra.N; i++) {
-			g.drawLine(round(PADDING + i * razdaljaMedCrtami), round(PADDING), round(PADDING + i * razdaljaMedCrtami), round(v - PADDING));
-			g.drawLine(round(PADDING), round(PADDING + i * razdaljaMedCrtami), round(s - PADDING), round(PADDING + i * razdaljaMedCrtami));
-		}
 		for (int i = 0; i < Igra.N; i++) {
-			for (int j = 0; j < Igra.N; j++) {
-				switch(plosca[i][j]) {
-				case CRNO: pobarvajCrno(g2, i, j); break;
-				case BELO: pobarvajBelo(g2, i, j); break;
-				default: break;
+			g.drawLine(round(PADDING + i * razdaljaMedCrtami()), round(PADDING), round(PADDING + i * razdaljaMedCrtami()), round(velikostPolja() - PADDING));
+			g.drawLine(round(PADDING), round(PADDING + i * razdaljaMedCrtami()), round(velikostPolja() - PADDING), round(PADDING + i * razdaljaMedCrtami()));
+		}
+		Polje[][] plosca;;
+		if (Vodja.igra != null) {
+			plosca = Vodja.igra.getPlosca();
+			for (int i = 0; i < Igra.N; i++) {
+				for (int j = 0; j < Igra.N; j++) {
+					switch(plosca[i][j]) {
+					case CRNO: pobarvajCrno(g2, i, j); break;
+					case BELO: pobarvajBelo(g2, i, j); break;
+					default: break;
+					}
 				}
 			}
 		}
@@ -103,25 +110,32 @@ public class Platno extends JPanel implements MouseListener, MouseMotionListener
 	
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		if (plosca == null) return;
-		zacetniX = stariX = klikX = e.getX();
-		zacetniY = stariY = klikY = e.getY();
-		Point najblizjaTocka = null;
-		double najmanjsaRazdalja = 20;
-		for (int i = 0; i < Igra.N; i++) {
-			for (int j = 0; j < Igra.N; j++) {
-				double razdalja = Math.sqrt((PADDING + i * razdaljaMedCrtami - klikX) * (PADDING + i * razdaljaMedCrtami - klikX) + (PADDING + j * razdaljaMedCrtami - klikY) * (PADDING + j * razdaljaMedCrtami - klikY));
-				if (razdalja < najmanjsaRazdalja) {
-					najmanjsaRazdalja = razdalja;
-					Point p = new Point(i, j);
-					najblizjaTocka = p;
+		Polje[][] plosca;;
+		if (Vodja.clovekNaVrsti) {
+			plosca = Vodja.igra.getPlosca();
+			klikX = e.getX();
+			klikY = e.getY();
+			Point najblizjaTocka = null;
+			double najmanjsaRazdalja = 20;
+			for (int i = 0; i < Igra.N; i++) {
+				for (int j = 0; j < Igra.N; j++) {
+					double razdalja = Math.sqrt((PADDING + i * razdaljaMedCrtami() - klikX) * (PADDING + i * razdaljaMedCrtami() - klikX) + (PADDING + j * razdaljaMedCrtami() - klikY) * (PADDING + j * razdaljaMedCrtami() - klikY));
+					if (razdalja < najmanjsaRazdalja) {
+						najmanjsaRazdalja = razdalja;
+						Point p = new Point(i, j);
+						najblizjaTocka = p;
+					}
 				}
 			}
+			if (najblizjaTocka != null && plosca[najblizjaTocka.x][najblizjaTocka.y] == Polje.PRAZNO) {
+					Vodja.igrajClovekovoPotezo(new Poteza(najblizjaTocka.x, najblizjaTocka.y));
+				}
+			repaint();
 		}
-		if (najblizjaTocka != null && plosca[najblizjaTocka.x][najblizjaTocka.y] == Polje.PRAZNO) plosca[najblizjaTocka.x][najblizjaTocka.y] = Polje.CRNO;
-		repaint();
 	}
+	
 
+	
 	@Override
 	public void keyTyped(KeyEvent e) {
 	}
@@ -144,7 +158,6 @@ public class Platno extends JPanel implements MouseListener, MouseMotionListener
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-
 	}
 
 	@Override
@@ -158,4 +171,5 @@ public class Platno extends JPanel implements MouseListener, MouseMotionListener
 	@Override
 	public void mouseExited(MouseEvent e) {	
 	}
+
 }

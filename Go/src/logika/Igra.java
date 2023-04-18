@@ -1,6 +1,8 @@
 package logika;
 
 import java.awt.Point;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -41,7 +43,7 @@ public class Igra {
 			Point p = new Point(x,y-1);
 			sosedi.add(p);
 		}
-		if (x+1 < N) {
+		if (y+1 < N) {
 			Point p = new Point(x,y+1);
 			sosedi.add(p);
 		}
@@ -57,31 +59,54 @@ public class Igra {
 		return liberties;
 	}
 	
-	public List<Point> skupina(Point zeton, List<Point> pregledane){
-		List<Point> skupina = new LinkedList<Point>();
-		skupina.add(zeton);
-		pregledane.add(zeton);
+	public Set<Point> skupinaSosednjih(Point zeton){
+		if (plosca[zeton.x][zeton.y] == Polje.PRAZNO) return new HashSet<Point>();
 		List<Point> sosedi = sosedi(zeton);
+		Set<Point> skupinaSosednjih = new HashSet<Point>();
+		skupinaSosednjih.add(zeton);
 		for (Point p : sosedi) {
-			if (plosca[zeton.x][zeton.y] == plosca[p.x][p.y] && !pregledane.contains(p)) {
-				skupina.add(p);
-				pregledane.add(p);
-				skupina.addAll(skupina(p, pregledane));
+			if (plosca[zeton.x][zeton.y] == (plosca[p.x][p.y])) {
+				skupinaSosednjih.add(p);
 			}
 		}
-		return skupina;
+		return skupinaSosednjih;
 	}
 	
-	public List<LinkedList<Point>> skupineNaPlosci(){
-		List<Point> pregledane = new LinkedList<Point>();
-		List<LinkedList<Point>> skupine = new LinkedList<LinkedList<Point>>();
+	public Set<Point> skupinaLiberties(Set<Point> skupina) {
+		Set<Point> liberties = new HashSet<Point>();
+		for (Point p : skupina) {
+			liberties.addAll(liberties(p));	
+		}
+		return liberties;
+	}
+	
+	public List<Set<Point>> mergeSubsets(List<Set<Point>> skupine) {
+	    List<Set<Point>> result = new LinkedList<>();
+	    for (Set<Point> set : skupine) {
+	        // try to find a set in result that intersects this set
+	        // if one is found, merge the two.  otherwise, add this set to result
+	        result.stream()
+	                .filter(x -> !Collections.disjoint(x, set))
+	                .findAny()
+	                .ifPresentOrElse(   // this method was added in java 9
+	                        x -> x.addAll(set),
+	                        () -> result.add(new HashSet<>(set))
+	                );
+	    }
+	    // if nothing got merged we are done; otherwise, recurse and try again
+	    return result.size() == skupine.size() ? result : mergeSubsets(result);
+	}
+	
+	public List<Set<Point>> skupineNaPlosci(){
+		List<Set<Point>> skupine = new LinkedList<Set<Point>>();
 		for (int i = 0; i < N; i++) {
 			for(int j = 0; j < N; j++) {
 				Point p = new Point(i,j);
-				skupine.add((LinkedList<Point>) skupina(p, pregledane));
+				if (skupinaSosednjih(p).size() > 0) skupine.add(skupinaSosednjih(p));
 			}
 		}
-		return skupine;
+		List<Set<Point>> zdruzeneSkupine = mergeSubsets(skupine);
+		return zdruzeneSkupine;
 	}
 	
 	/**
@@ -113,6 +138,51 @@ public class Igra {
 		return ps;
 	}
 	
+	public Set<Igralec> ujeteSkupine() {
+		List<Set<Point>> skupine = skupineNaPlosci();
+		Set<Igralec> ujeteSkupine = new HashSet<Igralec>();
+		for (Set<Point> skupina : skupine) {
+			Set<Point> liberties = skupinaLiberties(skupina);
+			Point p = skupina.iterator().next();
+			if (liberties.size() == 0) {
+				if (plosca[p.x][p.y] == Polje.BELO) ujeteSkupine.add(Igralec.BELI);
+				else if (plosca[p.x][p.y] == Polje.CRNO) ujeteSkupine.add(Igralec.CRNI);
+			}
+		}
+		System.out.println(ujeteSkupine);
+		return ujeteSkupine;
+	}
+	
+	public Stanje stanje() {
+		// Ali imamo zmagovalca?
+		Set<Igralec> ujeti = ujeteSkupine();
+		if (!ujeti.isEmpty()) {
+			System.out.println("konec");
+			if (ujeti.contains(naPotezi.nasprotnik())) 
+				return switch (naPotezi()) {
+				case BELI -> Stanje.ZMAGA_BELI;
+				case CRNI -> Stanje.ZMAGA_CRNI;
+			};
+		else if (ujeti.contains(naPotezi) && !ujeti.contains(naPotezi.nasprotnik()))
+				return switch(naPotezi()) {
+				case BELI -> Stanje.ZMAGA_CRNI;
+				case CRNI -> Stanje.ZMAGA_BELI;
+				};
+		}
+		// Ali imamo kakšno prazno polje?
+		// Če ga imamo, igre ni konec in je nekdo na potezi
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				if (plosca[i][j] == Polje.PRAZNO) {
+					System.out.println("v teku");
+					return Stanje.V_TEKU;
+				}
+			}
+		}
+		// Polje je polno, rezultat je neodločen
+		System.out.println("neodloceno");
+		return Stanje.NEODLOCENO;
+	}
 	
 	/**
 	 * Odigraj potezo p.
