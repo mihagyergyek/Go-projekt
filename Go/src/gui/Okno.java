@@ -172,4 +172,27 @@ public class Okno extends JFrame implements ActionListener {
 			}
 		}
 	}
+	public void osveziGUI() {
+		if (Vodja.igra == null) {
+			status.setText("Igra ni v teku.");
+		}
+		else {
+			switch(Vodja.igra.stanje()) {
+			case NEODLOCENO: status.setText("Neodločeno!"); break;
+			case V_TEKU: 
+				status.setText("Na potezi je " + Vodja.igra.naPotezi() + 
+						" - " + Vodja.vrstaIgralca.get(Vodja.igra.naPotezi())); 
+				break;
+			case ZMAGA_BELI: 
+				status.setText("Zmagal je beli igralec! (" + 
+						Vodja.vrstaIgralca.get(Vodja.igra.naPotezi()) + ")");
+				break;
+			case ZMAGA_CRNI: 
+				status.setText("Zmagal je črni igralec! (" +
+						Vodja.vrstaIgralca.get(Vodja.igra.naPotezi()) + ")");
+				break;
+			}
+		}
+		platno.repaint();
+	}
 }
