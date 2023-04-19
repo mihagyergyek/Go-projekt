@@ -1,13 +1,13 @@
 package vodja;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.SwingWorker;
 
 import gui.Okno;
+import inteligenca.Alphabeta;
+import inteligenca.Inteligenca;
 import logika.Igra;
 import logika.Igralec;
 import splosno.Poteza;
@@ -48,27 +48,27 @@ public class Vodja {
 		}
 	}
 	
-	private static Random random = new Random ();
+	public static Inteligenca racunalnikovaInteligenca = new Alphabeta(4);
 	
 	public static void igrajRacunalnikovoPotezo() {
-		Igra zacetekIgre = igra;
-		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void> () {
+		Igra zacetkaIgra = igra;
+		SwingWorker<Poteza, Void> worker = new SwingWorker<Poteza, Void> () {
 			@Override
-			protected Void doInBackground() {
-				try {TimeUnit.SECONDS.sleep(2);} catch (Exception e) {};	
-				return null;
+			protected Poteza doInBackground() {
+				Poteza poteza = racunalnikovaInteligenca.izberiPotezo(igra);
+				return poteza;
 			}
 			@Override
 			protected void done () {
-				if (igra != zacetekIgre) return;
-				List<Poteza> moznePoteze = igra.poteze();
-				int randomIndex = random.nextInt(moznePoteze.size());
-				Poteza poteza = moznePoteze.get(randomIndex);
-				igra.odigraj(poteza);
-				igramo ();	
+				Poteza poteza = null;
+				try {poteza = get();} catch (Exception e) {};
+				if (igra == zacetkaIgra) {
+					igra.odigraj(poteza);
+					igramo ();
+				}
 			}
 		};
-		worker.execute();	
+		worker.execute();
 	}
 	
 	public static void igrajClovekovoPotezo(Poteza poteza) {

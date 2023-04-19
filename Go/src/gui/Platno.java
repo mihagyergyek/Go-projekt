@@ -59,24 +59,29 @@ public class Platno extends JPanel implements MouseListener, MouseMotionListener
 		return Math.min(getHeight(), getWidth());
 	}
 	
+	private double velikostZetonov() {
+		return velikostZetonov * (velikostPolja() / 800);
+	}
+	
+	
 	@Override
 	public Dimension getPreferredSize() {
 		return new Dimension(700, 700);
 	}
 	
 	private void pobarvajCrno(Graphics2D g2, int i, int j) {
-		int x = round(i * razdaljaMedCrtami() + PADDING - velikostZetonov / 2);
-		int y = round(j * razdaljaMedCrtami() + PADDING - velikostZetonov / 2);
+		int x = round(i * razdaljaMedCrtami() + PADDING - velikostZetonov() / 2);
+		int y = round(j * razdaljaMedCrtami() + PADDING - velikostZetonov() / 2);
 		g2.setColor(barvaPrvegaIgralca);
-		g2.fillOval(x, y, (int)velikostZetonov, (int)velikostZetonov);
+		g2.fillOval(x, y, (int)velikostZetonov(), (int)velikostZetonov());
 		repaint();
 	}
 	
 	private void pobarvajBelo(Graphics2D g2, int i, int j) {
-		int x = round(i * razdaljaMedCrtami() + PADDING - velikostZetonov / 2);
-		int y = round(j * razdaljaMedCrtami() + PADDING - velikostZetonov / 2);
+		int x = round(i * razdaljaMedCrtami() + PADDING - velikostZetonov() / 2);
+		int y = round(j * razdaljaMedCrtami() + PADDING - velikostZetonov() / 2);
 		g2.setColor(barvaDrugegaIgralca);
-		g2.fillOval(x, y, (int)velikostZetonov, (int)velikostZetonov);
+		g2.fillOval(x, y, (int)velikostZetonov(), (int)velikostZetonov());
 		repaint();
 	}
 	

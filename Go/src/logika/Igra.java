@@ -119,6 +119,12 @@ public class Igra {
 		return zdruzeneSkupine;
 	}
 	
+	public Igralec cigavaSkupina(Set<Point> skupina) {
+		Point p = skupina.iterator().next();
+		if (plosca[p.x][p.y] == Polje.BELO) return Igralec.BELI;
+		else return Igralec.CRNI;
+	}
+	
 	/**
 	 * @return igralca na potezi
 	 */
@@ -159,7 +165,6 @@ public class Igra {
 				else if (plosca[p.x][p.y] == Polje.CRNO) ujeteSkupine.add(Igralec.CRNI);
 			}
 		}
-		System.out.println(ujeteSkupine);
 		return ujeteSkupine;
 	}
 	
@@ -167,7 +172,6 @@ public class Igra {
 		// Ali imamo zmagovalca?
 		Set<Igralec> ujeti = ujeteSkupine();
 		if (!ujeti.isEmpty()) {
-			System.out.println("konec");
 			if (ujeti.contains(naPotezi.nasprotnik())) 
 				return switch (naPotezi()) {
 				case BELI -> Stanje.ZMAGA_BELI;
@@ -184,13 +188,11 @@ public class Igra {
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < N; j++) {
 				if (plosca[i][j] == Polje.PRAZNO) {
-					System.out.println("v teku");
 					return Stanje.V_TEKU;
 				}
 			}
 		}
 		// Polje je polno, rezultat je neodločen
-		System.out.println("neodloceno");
 		return Stanje.NEODLOCENO;
 	}
 	
