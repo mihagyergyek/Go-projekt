@@ -185,11 +185,12 @@ public class Okno extends JFrame implements ActionListener {
 				break;
 			case ZMAGA_BELI: 
 				status.setText("Zmagal je beli igralec! (" + 
-						Vodja.vrstaIgralca.get(Vodja.igra.naPotezi()) + ")");
+						Vodja.vrstaIgralca.get(Igralec.BELI) + ")");
+				System.out.print(Vodja.igra.ujeteSkupine());
 				break;
 			case ZMAGA_CRNI: 
 				status.setText("Zmagal je črni igralec! (" +
-						Vodja.vrstaIgralca.get(Vodja.igra.naPotezi()) + ")");
+						Vodja.vrstaIgralca.get(Igralec.CRNI) + ")");
 				break;
 			}
 		}
