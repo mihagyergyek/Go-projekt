@@ -69,19 +69,18 @@ public class Platno extends JPanel implements MouseListener, MouseMotionListener
 		return new Dimension(700, 700);
 	}
 	
-	private void pobarvajCrno(Graphics2D g2, int i, int j) {
+	private void pobarvaj(Graphics2D g2, int i, int j, Polje color) {
 		int x = round(i * razdaljaMedCrtami() + PADDING - velikostZetonov() / 2);
 		int y = round(j * razdaljaMedCrtami() + PADDING - velikostZetonov() / 2);
-		g2.setColor(barvaPrvegaIgralca);
+		g2.setColor(color == Polje.CRNO || color == Polje.UJET_CRNO ? barvaPrvegaIgralca : barvaDrugegaIgralca);
 		g2.fillOval(x, y, (int)velikostZetonov(), (int)velikostZetonov());
-		repaint();
-	}
-	
-	private void pobarvajBelo(Graphics2D g2, int i, int j) {
-		int x = round(i * razdaljaMedCrtami() + PADDING - velikostZetonov() / 2);
-		int y = round(j * razdaljaMedCrtami() + PADDING - velikostZetonov() / 2);
-		g2.setColor(barvaDrugegaIgralca);
-		g2.fillOval(x, y, (int)velikostZetonov(), (int)velikostZetonov());
+
+		if(color == Polje.UJET_BELO || color == Polje.UJET_CRNO) {
+			g2.setColor(Color.RED);
+			g2.setStroke(new BasicStroke(2));
+			g2.drawOval(x, y, (int)velikostZetonov(), (int)velikostZetonov());
+		}
+
 		repaint();
 	}
 	
@@ -99,11 +98,7 @@ public class Platno extends JPanel implements MouseListener, MouseMotionListener
 			plosca = Vodja.igra.getPlosca();
 			for (int i = 0; i < Igra.N; i++) {
 				for (int j = 0; j < Igra.N; j++) {
-					switch(plosca[i][j]) {
-					case CRNO: pobarvajCrno(g2, i, j); break;
-					case BELO: pobarvajBelo(g2, i, j); break;
-					default: break;
-					}
+					if (plosca[i][j] != Polje.PRAZNO) pobarvaj(g2, i, j, plosca[i][j]);
 				}
 			}
 		}

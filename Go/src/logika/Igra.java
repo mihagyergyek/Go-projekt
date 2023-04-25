@@ -161,8 +161,14 @@ public class Igra {
 			Set<Point> liberties = skupinaLiberties(skupina);
 			Point p = skupina.iterator().next();
 			if (liberties.size() == 0) {
-				if (plosca[p.x][p.y] == Polje.BELO) ujeteSkupine.add(Igralec.BELI);
-				else if (plosca[p.x][p.y] == Polje.CRNO) ujeteSkupine.add(Igralec.CRNI);
+				if (plosca[p.x][p.y] == Polje.BELO) {
+					plosca[p.x][p.y] = Polje.UJET_BELO;
+					ujeteSkupine.add(Igralec.BELI);
+				}
+				else if (plosca[p.x][p.y] == Polje.CRNO) {
+					plosca[p.x][p.y] = Polje.UJET_CRNO;
+					ujeteSkupine.add(Igralec.CRNI);
+				}
 			}
 		}
 		return ujeteSkupine;
@@ -172,11 +178,11 @@ public class Igra {
 		// Ali imamo zmagovalca?
 		Set<Igralec> ujeti = ujeteSkupine();
 		if (!ujeti.isEmpty()) {
-			if (ujeti.contains(naPotezi.nasprotnik())) 
+			if (ujeti.contains(naPotezi.nasprotnik()))
 				return switch (naPotezi()) {
-				case BELI -> Stanje.ZMAGA_BELI;
-				case CRNI -> Stanje.ZMAGA_CRNI;
-			};
+					case BELI -> Stanje.ZMAGA_BELI;
+					case CRNI -> Stanje.ZMAGA_CRNI;
+				};
 		else if (ujeti.contains(naPotezi) && !ujeti.contains(naPotezi.nasprotnik()))
 				return switch(naPotezi()) {
 				case BELI -> Stanje.ZMAGA_CRNI;
