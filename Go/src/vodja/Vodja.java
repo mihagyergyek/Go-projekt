@@ -1,8 +1,6 @@
 package vodja;
 
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 import javax.swing.SwingWorker;
 
 import gui.Okno;

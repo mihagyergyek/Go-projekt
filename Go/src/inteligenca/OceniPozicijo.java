@@ -9,66 +9,31 @@ import logika.Igralec;
 public class OceniPozicijo {
 	
 	public static int oceniPozicijo(Igra igra, Igralec jaz) {
-		int ocena = 0;
-		ocena = oceniSteviloSkupinJaz(igra,jaz) + oceniSteviloLibertiesJaz(igra, jaz) + oceniPovprecnoLibertiesJaz(igra, jaz) +
-				oceniSteviloSkupinNasprotnik(igra, jaz) + oceniSteviloLibertiesNasprotnik(igra, jaz);
-		return ocena;	
-	}
-	
-	public static int oceniSteviloSkupinJaz(Igra igra, Igralec jaz) {
-		int stevilo = 0;
-		for (Set<Point> skupina : igra.skupineNaPlosci()) {
-			if (igra.cigavaSkupina(skupina) == jaz) stevilo += 1;
-		}
-		return 3 * stevilo;
-	}
-	
-	public static int oceniSteviloLibertiesJaz(Igra igra, Igralec jaz) {
-		int stevilo = 0;
-		for (Set<Point> skupina : igra.skupineNaPlosci()) {
-			if (igra.cigavaSkupina(skupina) == jaz) stevilo += igra.skupinaLiberties(skupina).size();
-		}
-		return 11 * stevilo;
-	}
-	
-	public static int oceniPovprecnoLibertiesJaz(Igra igra, Igralec jaz) {
-		int steviloSkupin = 0;
-		int steviloLiberties = 0;
-		for (Set<Point> skupina : igra.skupineNaPlosci()) {
-			if (igra.cigavaSkupina(skupina) == jaz) {
-				steviloLiberties += igra.skupinaLiberties(skupina).size();
-				steviloSkupin += 1;
+		int steviloSkupinJaz = 0;
+		int steviloOgrozenihJaz = 0;
+		int steviloLibertiesJaz = 0;
+		int povprecnoLibertiesJaz = 0;
+		int steviloSkupinNasprotnik = 0;
+		int steviloOgrozenihNasprotnik = 0;
+		int steviloLibertiesNasprotnik = 0;
+		int povprecnoLibertiesNasprotnik = 0;
+		for (Point p : igra.skupineNaPlosciVseLiberties().keySet()) {
+			Set<Point> opazovanaSkupina = igra.skupineNaPlosciVseLiberties().get(p);
+			if (igra.cigavaSkupina(p) == jaz) {
+				steviloSkupinJaz += 1;
+				steviloLibertiesJaz += opazovanaSkupina.size();
+				if (opazovanaSkupina.size() <= 3) steviloOgrozenihJaz += 1;
+			}
+			else if (igra.cigavaSkupina(p) != jaz) {
+				steviloSkupinNasprotnik += 1;
+				steviloLibertiesNasprotnik += opazovanaSkupina.size();
+				if (opazovanaSkupina.size() <= 3) steviloOgrozenihNasprotnik += 1;
 			}
 		}
-		return 12 * (int)(steviloLiberties / steviloSkupin);
-	}
+		povprecnoLibertiesJaz = steviloLibertiesJaz / steviloSkupinJaz;
+		povprecnoLibertiesNasprotnik = steviloLibertiesNasprotnik / steviloSkupinNasprotnik;
+		return 15 * steviloSkupinJaz -1900 * steviloOgrozenihJaz + 200 * steviloLibertiesJaz + 250 * povprecnoLibertiesJaz
+				-13 * steviloSkupinNasprotnik + 1300 * steviloOgrozenihNasprotnik -220 * steviloLibertiesNasprotnik -290 * povprecnoLibertiesNasprotnik; 
+	}	
 	
-	public static int oceniSteviloSkupinNasprotnik(Igra igra, Igralec jaz) {
-		int stevilo = 0;
-		for (Set<Point> skupina : igra.skupineNaPlosci()) {
-			if (igra.cigavaSkupina(skupina) != jaz) stevilo += 1;
-		}
-		return -3 * stevilo;
-	}
-	
-	public static int oceniSteviloLibertiesNasprotnik(Igra igra, Igralec jaz) {
-		int stevilo = 0;
-		for (Set<Point> skupina : igra.skupineNaPlosci()) {
-			if (igra.cigavaSkupina(skupina) != jaz) stevilo += igra.skupinaLiberties(skupina).size();
-		}
-		return -10 * stevilo;
-	}
-	
-	public static int oceniPovprecnoLibertiesNasprotnik(Igra igra, Igralec jaz) {
-		int steviloSkupin = 0;
-		int steviloLiberties = 0;
-		for (Set<Point> skupina : igra.skupineNaPlosci()) {
-			if (igra.cigavaSkupina(skupina) != jaz) {
-				steviloLiberties += igra.skupinaLiberties(skupina).size();
-				steviloSkupin += 1;
-			}
-		}
-		return -10 * (int)(steviloLiberties / steviloSkupin);
-	}
-
 }
