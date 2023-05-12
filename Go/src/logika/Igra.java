@@ -136,6 +136,33 @@ public class Igra {
 		return skupineNaPlosci;
 	}
 	
+	public Map<Igralec, Integer> ocesa() {
+		Map<Igralec, Integer> ocesa = new HashMap<Igralec, Integer>();
+		ocesa.put(Igralec.BELI, 0);
+		ocesa.put(Igralec.CRNI, 0);
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				if (plosca[i][j] == Polje.PRAZNO) {
+					Set<Polje> razlicniSosedi = new HashSet<Polje>();
+					for (Point p : sosedi(new Point(i, j))) razlicniSosedi.add(plosca[p.x][p.y]);
+					if (razlicniSosedi.size() == 1) {
+						if (razlicniSosedi.iterator().next() == Polje.BELO) {
+							int stevilo = ocesa.get(Igralec.BELI);
+							stevilo += 1;
+							ocesa.put(Igralec.BELI, stevilo);
+						}
+						else if (razlicniSosedi.iterator().next() == Polje.CRNO) {
+							int stevilo = ocesa.get(Igralec.CRNI);
+							stevilo += 1;
+							ocesa.put(Igralec.CRNI, stevilo);
+						}
+					}
+				}
+			}
+		}
+		return ocesa;
+	}
+	
 	/**
 	 * @param predstavnik skupine
 	 * @return lastnik skupine na plošči

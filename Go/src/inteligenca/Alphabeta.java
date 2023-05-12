@@ -9,7 +9,7 @@ import splosno.Poteza;
 public class Alphabeta extends Inteligenca{
 	
 	private static final int ZMAGA = 1000000000; // vrednost zmage
-	private static final int PORAZ = -ZMAGA;  // vrednost izgube
+	private static final int PORAZ = -ZMAGA;  // vrednost poraza
 	private static final int NEODLOC = 0;  // vrednost neodločene igre	
 	
 	private int globina;
