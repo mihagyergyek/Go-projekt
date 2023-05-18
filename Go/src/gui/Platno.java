@@ -70,68 +70,83 @@ public class Platno extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	private void pobarvaj(Graphics2D g2, int i, int j, Polje color) {
-		int x = round(i * razdaljaMedCrtami() + PADDING - velikostZetonov() / 2);
-		int y = round(j * razdaljaMedCrtami() + PADDING - velikostZetonov() / 2);
-		g2.setColor(color == Polje.CRNO || color == Polje.UJET_CRNO ? barvaPrvegaIgralca : barvaDrugegaIgralca);
-		g2.fillOval(x, y, (int)velikostZetonov(), (int)velikostZetonov());
 
-		if(color == Polje.UJET_BELO || color == Polje.UJET_CRNO) {
-			g2.setColor(Color.RED);
-			g2.setStroke(new BasicStroke(2));
-			g2.drawOval(x, y, (int)velikostZetonov(), (int)velikostZetonov());
-		}
+	    int offsetX = (getWidth() - (int)velikostPolja()) / 2;
+	    int offsetY = (getHeight() - (int)velikostPolja()) / 2;
 
-		repaint();
+	    int x = offsetX + round(PADDING + i * razdaljaMedCrtami() - velikostZetonov() / 2);
+	    int y = offsetY + round(PADDING + j * razdaljaMedCrtami() - velikostZetonov() / 2);
+
+
+	    g2.setColor(color == Polje.CRNO || color == Polje.UJET_CRNO ? barvaPrvegaIgralca : barvaDrugegaIgralca);
+	    g2.fillOval(x, y, (int)velikostZetonov(), (int)velikostZetonov());
+
+	    if (color == Polje.UJET_BELO || color == Polje.UJET_CRNO) {
+	        g2.setColor(Color.RED);
+	        g2.setStroke(new BasicStroke(2));
+	        g2.drawOval(x, y, (int)velikostZetonov(), (int)velikostZetonov());
+	    }
+
+	    repaint();
 	}
+
+
 	
 	@Override
 	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		Graphics2D g2 = (Graphics2D) g;
-		g2.setStroke(debelinaCrt);
-		for (int i = 0; i < Igra.N; i++) {
-			g.drawLine(round(PADDING + i * razdaljaMedCrtami()), round(PADDING), round(PADDING + i * razdaljaMedCrtami()), round(velikostPolja() - PADDING));
-			g.drawLine(round(PADDING), round(PADDING + i * razdaljaMedCrtami()), round(velikostPolja() - PADDING), round(PADDING + i * razdaljaMedCrtami()));
-		}
-		Polje[][] plosca;;
-		if (Vodja.igra != null) {
-			plosca = Vodja.igra.getPlosca();
-			for (int i = 0; i < Igra.N; i++) {
-				for (int j = 0; j < Igra.N; j++) {
-					if (plosca[i][j] != Polje.PRAZNO) pobarvaj(g2, i, j, plosca[i][j]);
-				}
-			}
-		}
+	    super.paintComponent(g);
+	    Graphics2D g2 = (Graphics2D) g;
+	    g2.setStroke(debelinaCrt);
+
+	    int offsetX = (getWidth() - round(velikostPolja())) / 2;
+	    int offsetY = (getHeight() - round(velikostPolja())) / 2;
+
+	    for (int i = 0; i < Igra.N; i++) {
+	        g.drawLine(round(offsetX + PADDING + i * razdaljaMedCrtami()), round(offsetY + PADDING),
+	                round(offsetX + PADDING + i * razdaljaMedCrtami()), round(offsetY + velikostPolja() - PADDING));
+	        g.drawLine(round(offsetX + PADDING), round(offsetY + PADDING + i * razdaljaMedCrtami()),
+	                round(offsetX + velikostPolja() - PADDING), round(offsetY + PADDING + i * razdaljaMedCrtami()));
+	    }
+
+	    Polje[][] plosca;
+	    if (Vodja.igra != null) {
+	        plosca = Vodja.igra.getPlosca();
+	        for (int i = 0; i < Igra.N; i++) {
+	            for (int j = 0; j < Igra.N; j++) {
+	                if (plosca[i][j] != Polje.PRAZNO) {
+	                    pobarvaj(g2, i, j, plosca[i][j]);
+	                }
+	            }
+	        }
+	    }
 	}
 	
+	
+
 	private int round(double x) {
 		return (int)(x + 0.5);
 	}
 	
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		Polje[][] plosca;;
-		if (Vodja.clovekNaVrsti) {
-			plosca = Vodja.igra.getPlosca();
-			klikX = e.getX();
-			klikY = e.getY();
-			Point najblizjaTocka = null;
-			double najmanjsaRazdalja = 20;
-			for (int i = 0; i < Igra.N; i++) {
-				for (int j = 0; j < Igra.N; j++) {
-					double razdalja = Math.sqrt((PADDING + i * razdaljaMedCrtami() - klikX) * (PADDING + i * razdaljaMedCrtami() - klikX) + (PADDING + j * razdaljaMedCrtami() - klikY) * (PADDING + j * razdaljaMedCrtami() - klikY));
-					if (razdalja < najmanjsaRazdalja) {
-						najmanjsaRazdalja = razdalja;
-						Point p = new Point(i, j);
-						najblizjaTocka = p;
-					}
-				}
-			}
-			if (najblizjaTocka != null && plosca[najblizjaTocka.x][najblizjaTocka.y] == Polje.PRAZNO) {
-					Vodja.igrajClovekovoPotezo(new Poteza(najblizjaTocka.x, najblizjaTocka.y));
-				}
-			repaint();
-		}
+	    if (Vodja.clovekNaVrsti) {
+	        Polje[][] plosca = Vodja.igra.getPlosca();
+
+	        int offsetX = (getWidth() - (int)velikostPolja()) / 2;
+	        int offsetY = (getHeight() - (int)velikostPolja()) / 2;
+
+	        int klikX = e.getX() - offsetX;
+	        int klikY = e.getY() - offsetY;
+
+	        int i = (klikX - round(PADDING) + (int)razdaljaMedCrtami() / 2) / (int)razdaljaMedCrtami();
+	        int j = (klikY - round(PADDING) + (int)razdaljaMedCrtami() / 2) / (int)razdaljaMedCrtami();
+
+	        if (i >= 0 && i < Igra.N && j >= 0 && j < Igra.N && plosca[i][j] == Polje.PRAZNO) {
+	        	Vodja.igrajClovekovoPotezo(new Poteza(i, j));; 
+	        }
+
+	        repaint();
+	    }
 	}
 	
 
