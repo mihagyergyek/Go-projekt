@@ -19,8 +19,9 @@ public class OceniPozicijo {
 		int steviloOgrozenihNasprotnik = 0;
 		int steviloLibertiesNasprotnik = 0;
 		int povprecnoLibertiesNasprotnik = 0;
-		for (Point p : igra.skupineNaPlosciVseLiberties().keySet()) {
-			Set<Point> opazovanaSkupina = igra.skupineNaPlosciVseLiberties().get(p);
+		Map<Point, Set<Point>> svoboscine = igra.getSvoboscine();
+		for (Point p : svoboscine.keySet()) {
+			Set<Point> opazovanaSkupina = svoboscine.get(p);
 			if (igra.cigavaSkupina(p) == jaz) {
 				steviloSkupinJaz += 1;
 				steviloLibertiesJaz += opazovanaSkupina.size();

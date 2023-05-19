@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -135,8 +134,8 @@ public class Platno extends JPanel implements MouseListener, MouseMotionListener
 	        int offsetX = (getWidth() - (int)velikostPolja()) / 2;
 	        int offsetY = (getHeight() - (int)velikostPolja()) / 2;
 
-	        int klikX = e.getX() - offsetX;
-	        int klikY = e.getY() - offsetY;
+	        klikX = e.getX() - offsetX;
+	        klikY = e.getY() - offsetY;
 
 	        int i = (klikX - round(PADDING) + (int)razdaljaMedCrtami() / 2) / (int)razdaljaMedCrtami();
 	        int j = (klikY - round(PADDING) + (int)razdaljaMedCrtami() / 2) / (int)razdaljaMedCrtami();
