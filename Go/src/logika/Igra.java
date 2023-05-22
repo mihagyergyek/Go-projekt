@@ -18,7 +18,6 @@ public class Igra {
 	private Igralec naPotezi;
 	private DisjointSets<Point> skupine;
 	private List<Point> odigrani;
-	private Map<Point, Set<Point>> svoboscine;
 	
 	public Igra() {
 		// Zacetek nove igre
@@ -31,7 +30,6 @@ public class Igra {
 		naPotezi = Igralec.CRNI;
 		skupine = new FastSets<Point> ();
 		odigrani = new LinkedList<Point>();
-		svoboscine = new HashMap<Point, Set<Point>>();
 	}
 	
 	public Igra(Igra igra) {
@@ -55,14 +53,6 @@ public class Igra {
 			for (Point p : sosedi) {
 				if (this.plosca[p.x][p.y] == this.plosca[zeton.x][zeton.y]) this.skupine.union(zeton, p);
 			}
-		}
-		this.svoboscine = new HashMap<Point, Set<Point>>();
-		for (Point q : svoboscine.keySet()) {
-			Set<Point> liberties = new HashSet<Point>();
-			for (Point u : svoboscine.get(q)) {
-				liberties.add(u);
-			}
-			this.svoboscine.put(q, liberties);
 		}
 	}
 	
@@ -191,6 +181,12 @@ public class Igra {
 		else return Igralec.CRNI;
 	}
 	
+	
+	/**
+	 * Obarva ujete poražene skupine (funkcija samo za GUI)
+	 * @param predstavnik
+	 * @param barva
+	 */
 	public void oznaciSkupino(Point predstavnik, Igralec barva) {
 		for (Point p : odigrani) {
 			if (skupine.find(p) == predstavnik) {
@@ -211,14 +207,6 @@ public class Igra {
 	 */
 	public Polje[][] getPlosca () {
 		return plosca;
-	}
-	
-	/**
-	 * 
-	 * @return skupine svoboščin na plošči
-	 */
-	public Map<Point, Set<Point>> getSvoboscine() {
-		return svoboscine;
 	}
 	
 	/**
@@ -323,7 +311,6 @@ public class Igra {
 			Point u = new Point(p.x(), p.y());
 			dodajZetonVSkupino(u);
 			odigrani.add(u);
-			svoboscine = skupineNaPlosciVseLiberties();
 			naPotezi = naPotezi.nasprotnik();
 			return true;
 		}
