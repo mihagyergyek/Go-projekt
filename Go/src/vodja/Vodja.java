@@ -4,7 +4,6 @@ import java.util.Map;
 import javax.swing.SwingWorker;
 
 import gui.Okno;
-import inteligenca.Alphabeta;
 import inteligenca.Inteligenca;
 import logika.Igra;
 import logika.Igralec;
@@ -46,7 +45,7 @@ public class Vodja {
 		}
 	}
 	
-	public static Inteligenca racunalnikovaInteligenca = new Alphabeta(4);
+	public static Inteligenca racunalnikovaInteligenca = new Inteligenca();
 	
 	public static void igrajRacunalnikovoPotezo() {
 		Igra zacetkaIgra = igra;

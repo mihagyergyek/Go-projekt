@@ -18,6 +18,7 @@ public class Igra {
 	private Igralec naPotezi;
 	private DisjointSets<Point> skupine;
 	private List<Point> odigrani;
+	private Map<Point, Set<Point>> svoboscine;
 	
 	public Igra() {
 		// Zacetek nove igre
@@ -30,6 +31,7 @@ public class Igra {
 		naPotezi = Igralec.CRNI;
 		skupine = new FastSets<Point> ();
 		odigrani = new LinkedList<Point>();
+		svoboscine = new HashMap<Point, Set<Point>>();
 	}
 	
 	public Igra(Igra igra) {
@@ -53,6 +55,14 @@ public class Igra {
 			for (Point p : sosedi) {
 				if (this.plosca[p.x][p.y] == this.plosca[zeton.x][zeton.y]) this.skupine.union(zeton, p);
 			}
+		}
+		this.svoboscine = new HashMap<Point, Set<Point>>();
+		for (Point q : svoboscine.keySet()) {
+			Set<Point> liberties = new HashSet<Point>();
+			for (Point u : svoboscine.get(q)) {
+				liberties.add(u);
+			}
+			this.svoboscine.put(q, liberties);
 		}
 	}
 	
@@ -119,6 +129,10 @@ public class Igra {
 		return skupine;
 	}
 	
+	public List<Point> odigrani() {
+		return odigrani;
+	}
+	
 	/**
 	 * @return slovar vseh skupin, opisanih s predstavnikom in množico njihovih prostih polj
 	 */
@@ -136,6 +150,11 @@ public class Igra {
 		return skupineNaPlosci;
 	}
 	
+	
+	/**
+	 * poišče polja, ki so obkrožena le z enim igralcem ("očesa")
+	 * @return slovar igralcev in število očes, ki sta jih ustvarila
+	 */
 	public Map<Igralec, Integer> ocesa() {
 		Map<Igralec, Integer> ocesa = new HashMap<Igralec, Integer>();
 		ocesa.put(Igralec.BELI, 0);
@@ -195,6 +214,14 @@ public class Igra {
 	}
 	
 	/**
+	 * 
+	 * @return skupine svoboščin na plošči
+	 */
+	public Map<Point, Set<Point>> getSvoboscine() {
+		return svoboscine;
+	}
+	
+	/**
 	 * @return seznam možnih potez
 	 */
 	public List<Poteza> poteze() {
@@ -241,122 +268,6 @@ public class Igra {
 			}
 		}
 		return ujeteSkupine;
-	}
-	
-	/**
-	 * @param teritorij
-	 * @return lastnika in velikost teritorija
-	 */
-	public int[] razresiTeritorij(Set<Point> teritorij) {
-		int[] resitevTeritorija = new int[2];
-		int minX = 9;
-		int minY = 9;
-		int maxX = 0;
-		int maxY = 0;
-		Set<Polje> sosediTeritorija = new HashSet<Polje>();
-		Set<Point> potencialniUjetniki = new HashSet<Point>();
-		//Določimo skrajne meje teritorija
-		for (Point p : teritorij) {
-			if (p.x < minX) minX = p.x;
-			if (p.y < minY) minY = p.y;
-			if (p.x > maxX) maxX = p.x;
-			if (p.y > maxY) maxY = p.y;
-		}
-		//Za posamezen stolpec in vrstico določimo žetone, ki teritorij omejujejo
-		for (int i = minX; i <= maxX; i++) {
-			int minStolpecY = 9;
-			int maxStolpecY = -1;
-			for (int j = minY; j <= maxY; j++) {
-				Point p = new Point(i, j);
-				if (teritorij.contains(p)) {
-					if (minStolpecY == 9 || j < minStolpecY) minStolpecY = j;
-					if (maxStolpecY == -1 || j > maxStolpecY) maxStolpecY = j;
-				}
-				else potencialniUjetniki.add(p);
-			}
-			if (minStolpecY > 0) sosediTeritorija.add(plosca[i][minStolpecY - 1]);
-			if (maxStolpecY < 8) sosediTeritorija.add(plosca[i][maxStolpecY + 1]);
-		}
-		for (int j = minY; j <= maxY; j++) {
-			int minVrsticaX = 9;
-			int maxVrsticaX = -1;
-			for (int i = minX; i <= maxX; i++) {
-				Point p = new Point(i, j);
-				if (teritorij.contains(p)) {
-					if (minVrsticaX == 9 || i < minVrsticaX) minVrsticaX = i;
-					if (maxVrsticaX == -1 || i > maxVrsticaX) maxVrsticaX = i;
-				}
-				else potencialniUjetniki.add(p);
-			}
-			if (minVrsticaX > 0) sosediTeritorija.add(plosca[minVrsticaX - 1][j]);
-			if (maxVrsticaX < 8) sosediTeritorija.add(plosca[maxVrsticaX + 1][j]);
-		}
-		//Če teritorij omejujejo samo žetoni ene barve, ima lastnika in velikost. Nasprotnikove žetone štejemo kot ujetnike
-		if (sosediTeritorija.size() == 1) {
-			if (sosediTeritorija.iterator().next() == Polje.CRNO) resitevTeritorija[0] = 1;
-			else resitevTeritorija[0] = -1;
-			int steviloUjetnikov = 0;
-			for (Point p : potencialniUjetniki) {
-				if (plosca[p.x][p.y] != sosediTeritorija.iterator().next()) {
-					odigrani.remove(p);
-					steviloUjetnikov += 1;
-				}
-			}
-			resitevTeritorija[1] = teritorij.size() + steviloUjetnikov;
-			return resitevTeritorija;
-		}
-		//Sicer teritorij nima lastnika
-		else return new int[] {0, 0};
-	}
-	
-	public Stanje razdelitevTeritorija() {
-		DisjointSets<Point> teritorij = new FastSets<Point>();
-		Set<Point> prosta = new HashSet<Point>();
-		//Poiščemo vsa prazna polja
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < N; j++) {
-				if (plosca[i][j] == Polje.PRAZNO) {
-					Point p = new Point(i, j);
-					prosta.add(p);
-					teritorij.add(p);
-				}
-			}
-		}
-		//Prazna polja združimo v teritorije
-		for (Point p : prosta) {
-			for (Point q : sosedi(p)) {
-				if (plosca[q.x][q.y] == Polje.PRAZNO) teritorij.union(q, p);
-			}
-		}
-		//Teritorije zapišemo v množice s predstavnikom
-		Map<Point,Set<Point>> teritorijiNaPlosci = new HashMap<Point,Set<Point>>();
-		for (Point p : prosta) {
-			Point key = skupine.find(p);
-			if (!teritorijiNaPlosci.containsKey(key)) {
-				Set<Point> skupina = new HashSet<Point>();
-				skupina.add(p);
-				teritorijiNaPlosci.put(key, skupina);
-			}
-			else {
-				Set<Point> skupina = teritorijiNaPlosci.get(key);
-				skupina.add(p);
-				teritorijiNaPlosci.put(key, skupina);
-			}
-		}
-		//Določimo, koliko teritorija nadzorujeta igralca
-		int razlikaVelikostiTeritorijev = 0;
-		for (Point p : teritorijiNaPlosci.keySet()) {
-			int[] resitev = razresiTeritorij(teritorijiNaPlosci.get(p));
-			razlikaVelikostiTeritorijev += resitev[0] * resitev[1];
-		}
-		for (Point p : odigrani) {
-			if (plosca[p.x][p.y] == Polje.CRNO) razlikaVelikostiTeritorijev += 1;
-			else razlikaVelikostiTeritorijev -= 1;
-		}
-		//Določimo zmagovalca
-		if (razlikaVelikostiTeritorijev > 0) return Stanje.ZMAGA_CRNI;
-		else if (razlikaVelikostiTeritorijev < 0) return Stanje.ZMAGA_BELI;
-		else return Stanje.NEODLOCENO;
 	}
 	
 	public Stanje stanje() {
@@ -412,6 +323,7 @@ public class Igra {
 			Point u = new Point(p.x(), p.y());
 			dodajZetonVSkupino(u);
 			odigrani.add(u);
+			svoboscine = skupineNaPlosciVseLiberties();
 			naPotezi = naPotezi.nasprotnik();
 			return true;
 		}
