@@ -20,7 +20,7 @@ public class Igra {
 	private List<Point> odigrani;
 	
 	public Igra() {
-		// Zacetek nove igre
+		// Začetek nove igre
 		plosca = new Polje[N][N];
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < N; j++) {
