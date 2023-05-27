@@ -17,10 +17,12 @@ public class Igra {
 	private Polje[][] plosca;
 	private Igralec naPotezi;
 	private DisjointSets<Point> skupine;
-	private List<Point> odigrani;
+	private Set<Point> odigrani;
+	private int skips;
+	private List<Set<Point>> zgodovinaStanj;
 	
 	public Igra() {
-		// Začetek nove igre
+		// Zacetek nove igre
 		plosca = new Polje[N][N];
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < N; j++) {
@@ -29,14 +31,16 @@ public class Igra {
 		}
 		naPotezi = Igralec.CRNI;
 		skupine = new FastSets<Point> ();
-		odigrani = new LinkedList<Point>();
+		odigrani = new HashSet<Point>();
+		skips = 0;
+		zgodovinaStanj = new LinkedList<>();
 	}
 	
 	public Igra(Igra igra) {
 		//Kopija igre
 		this.plosca = new Polje[N][N];
 		this.skupine = new FastSets<Point> ();
-		this.odigrani = new LinkedList<Point>();
+		this.odigrani = new HashSet<Point>();
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < N; j++) {
 				this.plosca[i][j] = igra.plosca[i][j];
@@ -53,6 +57,11 @@ public class Igra {
 			for (Point p : sosedi) {
 				if (this.plosca[p.x][p.y] == this.plosca[zeton.x][zeton.y]) this.skupine.union(zeton, p);
 			}
+		}
+		this.skips = igra.skips;
+		this.zgodovinaStanj = new LinkedList<>();
+		for (Set<Point> stanje : zgodovinaStanj) {
+			this.zgodovinaStanj.add(stanje);
 		}
 	}
 	
@@ -119,10 +128,6 @@ public class Igra {
 		return skupine;
 	}
 	
-	public List<Point> odigrani() {
-		return odigrani;
-	}
-	
 	/**
 	 * @return slovar vseh skupin, opisanih s predstavnikom in množico njihovih prostih polj
 	 */
@@ -140,10 +145,9 @@ public class Igra {
 		return skupineNaPlosci;
 	}
 	
-	
 	/**
-	 * poišče polja, ki so obkrožena le z enim igralcem ("očesa")
-	 * @return slovar igralcev in število očes, ki sta jih ustvarila
+	 * poišče polja, ki so obkrožena le z enim igralcem ("očesa") in jih kvalificira
+	 * @return slovar igralcev in število "očes", ki so jih igralci ustvarili na plošči
 	 */
 	public Map<Igralec, Integer> ocesa() {
 		Map<Igralec, Integer> ocesa = new HashMap<Igralec, Integer>();
@@ -181,9 +185,8 @@ public class Igra {
 		else return Igralec.CRNI;
 	}
 	
-	
 	/**
-	 * Obarva ujete poražene skupine (funkcija samo za GUI)
+	 * ujeto skupino na koncu igre označi za barvanje
 	 * @param predstavnik
 	 * @param barva
 	 */
@@ -210,6 +213,90 @@ public class Igra {
 	}
 	
 	/**
+	 * 
+	 * @param zeton
+	 * @param navideznaPlosca
+	 * @return prosta polja žetona v teoretični potezi
+	 */
+	public Set<Point> libertiesNavideznaPlosca(Point zeton, Polje[][] navideznaPlosca) {
+		List<Point> sosedi = sosedi(zeton);
+		Set<Point> liberties = new HashSet<Point>();
+		for (Point p : sosedi) {
+			if (navideznaPlosca[p.x][p.y] == Polje.PRAZNO) liberties.add(p);
+		}
+		return liberties;
+	}
+	
+	/**
+	 * 
+	 * @param p
+	 * @return true, če bi poteza ponovila prejšnje stanje na plošči
+	 */
+	public boolean ponoviStanje(Point p) {
+		Set<Point> kopijaOdigranih = new HashSet<Point>();
+		for (Point q : odigrani) {
+			kopijaOdigranih.add(q);
+		}
+		kopijaOdigranih.add(p);
+		if (zgodovinaStanj.contains(kopijaOdigranih)) return true;
+		return false;
+	}
+	
+	/**
+	 * 
+	 * @param p
+	 * @return true, če je poteza ilegalna
+	 */
+	public boolean ilegalnaPoteza(Point p) {
+		if (liberties(p).size() > 0) return false;
+		Map<Point, Set<Point>> stareSkupine = skupineNaPlosciVseLiberties();
+		//Najprej odpravimo potencialno ujete nasprotnikove skupine
+		for (Point skupina : sosedi(p)) {
+			if (stareSkupine.get(skupine.find(skupina)).size() == 1 && plosca[skupina.x][skupina.y] == naPotezi.nasprotnik().getPolje()) {
+				return false;
+			}
+		}
+		//Sedaj je treba preveriti, ali bi bila poteza samomorilna
+		//Kopija trenutne igre
+		Polje[][] kopijaPlosce = new Polje[N][N];
+		DisjointSets<Point> kopijaSkupin = new FastSets<Point> ();
+		List<Point> kopijaOdigranih = new LinkedList<Point>();
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				kopijaPlosce[i][j] = plosca[i][j];
+				if (kopijaPlosce[i][j] != Polje.PRAZNO) {
+					Point zeton = new Point(i,j);
+					kopijaSkupin.add(zeton);
+					kopijaOdigranih.add(zeton);
+				}
+			}
+		}
+		kopijaPlosce[p.x][p.y] = naPotezi.getPolje(); 
+		kopijaOdigranih.add(p);
+		kopijaSkupin.add(p);
+		for (Point zeton : kopijaOdigranih) {
+			List<Point> sosedi = sosedi(zeton);
+			for (Point q : sosedi) {
+				if (kopijaPlosce[q.x][q.y] == kopijaPlosce[zeton.x][zeton.y]) kopijaSkupin.union(zeton, q);
+			}
+		}
+		//Skupine na plošči, če bi dodali žeton
+		Map<Point,Set<Point>> skupineNaPlosciLiberties = new HashMap<Point,Set<Point>>();
+		for (Point u : kopijaOdigranih) {
+			Point key = kopijaSkupin.find(u);
+			if (!skupineNaPlosciLiberties.containsKey(key)) skupineNaPlosciLiberties.put(key, libertiesNavideznaPlosca(u, kopijaPlosce));
+			else {
+				Set<Point> skupina = skupineNaPlosciLiberties.get(key);
+				skupina.addAll(libertiesNavideznaPlosca(u, kopijaPlosce));
+				skupineNaPlosciLiberties.put(key, skupina);
+			}
+		}
+		//Če je skupina položenega žetona ujeta, je ta poteza ilegalna
+		if (skupineNaPlosciLiberties.get(kopijaSkupin.find(p)).size() == 0) return true;
+		else return false;
+	}
+	
+	/**
 	 * @return seznam možnih potez
 	 */
 	public List<Poteza> poteze() {
@@ -219,11 +306,11 @@ public class Igra {
 				pregledani[i][j] = 0;
 			}
 		}
-		LinkedList<Poteza> ps = new LinkedList<Poteza>();
+		List<Poteza> ps = new LinkedList<Poteza>();
 		Map<Point,Set<Point>> skupineNaPlosci = skupineNaPlosciVseLiberties();
 		for (Point p : skupineNaPlosci.keySet()) {
 			for (Point q : skupineNaPlosci.get(p)) {
-				if (pregledani[q.x][q.y] == 0 ) {
+				if (pregledani[q.x][q.y] == 0 && !ilegalnaPoteza(q) && !ponoviStanje(q)) {
 					ps.add(new Poteza(q.x,q.y));
 					pregledani[q.x][q.y] = 1;
 				}
@@ -233,7 +320,7 @@ public class Igra {
 		LinkedList<Poteza> ps2 = new LinkedList<Poteza>();
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < N; j++) {
-				if (plosca[i][j] == Polje.PRAZNO && pregledani[i][j] == 0) {
+				if (plosca[i][j] == Polje.PRAZNO && pregledani[i][j] == 0 && !ilegalnaPoteza(new Point(i,j)) && !ponoviStanje(new Point(i,j))) {
 					ps2.add(new Poteza(i, j));
 					pregledani[i][j] = 1;
 				}
@@ -242,6 +329,11 @@ public class Igra {
 		Collections.shuffle(ps2);
 		ps.addAll(ps2);
 		return ps;
+	}
+	
+	public void preskoci() {
+		naPotezi = naPotezi.nasprotnik();
+		skips += 1;
 	}
 	
 	/**
@@ -258,36 +350,91 @@ public class Igra {
 		return ujeteSkupine;
 	}
 	
-	public Stanje stanje() {
-		// Ali imamo zmagovalca?
-		Set<Point> ujetiTocke = ujeteSkupine();
-		Set<Igralec> ujeti = new HashSet<Igralec>();
-		for (Point p : ujetiTocke) ujeti.add(cigavaSkupina(p));
-		if (!ujeti.isEmpty()) {
-			if (ujeti.contains(Igralec.BELI) && !ujeti.contains(Igralec.CRNI)) {
-					for (Point p : ujetiTocke) {
-						if (cigavaSkupina(p) == Igralec.BELI) oznaciSkupino(p, Igralec.BELI);
-					}
-					return Stanje.ZMAGA_CRNI;
-				}
-			else if (ujeti.contains(Igralec.CRNI) && !ujeti.contains(Igralec.BELI)) {
-					for (Point p : ujetiTocke) {
-						if (cigavaSkupina(p) == Igralec.CRNI) oznaciSkupino(p, Igralec.CRNI);
-					}
-					return Stanje.ZMAGA_BELI;
-				}
-			else if (ujeti.contains(naPotezi.nasprotnik()) && ujeti.contains(naPotezi)) {
-				for (Point p : ujetiTocke) {
-					if (cigavaSkupina(p) == naPotezi) oznaciSkupino(p, naPotezi);
-				}
-					return switch(naPotezi) {
-					case BELI -> Stanje.ZMAGA_CRNI;
-					case CRNI -> Stanje.ZMAGA_BELI;
-				};
+	
+	/**
+	 * @param teritorij
+	 * @return lastnika in velikost teritorija
+	 */
+	public int[] razresiTeritorij(Set<Point> teritorij) {
+		int[] resitevTeritorija = new int[2];
+		Set<Polje> sosediTeritorija = new HashSet<Polje>();
+		for (Point p : teritorij) {
+			for (Point q : sosedi(p)) {
+				if (plosca[q.x][q.y] != Polje.PRAZNO) sosediTeritorija.add(plosca[q.x][q.y]);
 			}
 		}
-		// Ali imamo kakšno prazno polje?
-		// Če ga imamo, igre ni konec in je nekdo na potezi
+		//Če teritorij omejujejo samo žetoni ene barve, ima lastnika in velikost
+		if (sosediTeritorija.size() == 1) {
+			if (sosediTeritorija.iterator().next() == Polje.CRNO) resitevTeritorija[0] = 1;
+			else resitevTeritorija[0] = -1;
+			resitevTeritorija[1] = teritorij.size();
+			return resitevTeritorija;
+		}
+		//Sicer teritorij nima lastnika
+		else return new int[] {0, 0};
+	}
+	
+	/**
+	 * 
+	 * @return zmagovalca igre Go glede na obvladovan teritorij
+	 */
+	public Stanje razdelitevTeritorija() {
+		DisjointSets<Point> teritorij = new FastSets<Point>();
+		Set<Point> prosta = new HashSet<Point>();
+		//Poiščemo vsa prazna polja
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				if (plosca[i][j] == Polje.PRAZNO) {
+					Point p = new Point(i, j);
+					prosta.add(p);
+					teritorij.add(p);
+				}
+			}
+		}
+		//Prazna polja združimo v teritorije
+		for (Point p : prosta) {
+			for (Point q : sosedi(p)) {
+				if (plosca[q.x][q.y] == Polje.PRAZNO) teritorij.union(p, q);
+			}
+		}
+		//Teritorije zapišemo v množice s predstavnikom
+		Map<Point,Set<Point>> teritorijiNaPlosci = new HashMap<Point,Set<Point>>();
+		for (Point p : prosta) {
+			Point key = teritorij.find(p);
+			if (!teritorijiNaPlosci.containsKey(key)) {
+				Set<Point> skupina = new HashSet<Point>();
+				skupina.add(p);
+				teritorijiNaPlosci.put(key, skupina);
+			}
+			else {
+				Set<Point> skupina = teritorijiNaPlosci.get(key);
+				skupina.add(p);
+				teritorijiNaPlosci.put(key, skupina);
+			}
+		}
+		//Določimo, koliko teritorija nadzorujeta igralca
+		int razlikaVelikostiTeritorijev = 0;
+		for (Point p : teritorijiNaPlosci.keySet()) {
+			int[] resitev = razresiTeritorij(teritorijiNaPlosci.get(p));
+			razlikaVelikostiTeritorijev += resitev[0] * resitev[1];
+		}
+		for (Point p : odigrani) {
+			if (plosca[p.x][p.y] == Polje.CRNO) razlikaVelikostiTeritorijev += 1;
+			else razlikaVelikostiTeritorijev -= 1;
+		}
+		//Določimo zmagovalca
+		System.out.println(razlikaVelikostiTeritorijev);
+		if (razlikaVelikostiTeritorijev > 0) return Stanje.ZMAGA_CRNI;
+		else if (razlikaVelikostiTeritorijev < 0) return Stanje.ZMAGA_BELI;
+		else return Stanje.NEODLOCENO;
+	}
+	
+	/**
+	 * 
+	 * @return stanje igre Go
+	 */
+	public Stanje stanjeGo() {
+		if (skips >= 2 || odigrani.size() >= N * N - 1) return razdelitevTeritorija();
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < N; j++) {
 				if (plosca[i][j] == Polje.PRAZNO) {
@@ -295,22 +442,64 @@ public class Igra {
 				}
 			}
 		}
-		// Polje je polno, rezultat je neodločen
 		return Stanje.NEODLOCENO;
 	}
 	
 	/**
-	 * Odigraj potezo p.
-	 * 
-	 * @param p
-	 * @return true, če je bila poteza uspešno odigrana
+	 * Odstrani ujete točke v tej potezi.
 	 */
-	public boolean odigraj(Poteza p) {
+	public void odstraniUjete() {
+		Set<Point> ujetiTocke = ujeteSkupine();
+		if (ujetiTocke.size() > 0) {
+			for (Point p : ujetiTocke) {
+				if (cigavaSkupina(p) == naPotezi.nasprotnik()) {
+					for (Point q : odigrani) {
+						if (skupine.find(q) == p) {
+							plosca[q.x][q.y] = Polje.PRAZNO;
+						}
+					}
+				}
+			}
+			odigrani.clear();
+			FastSets<Point> noveSkupine = new FastSets<Point>();
+			for (int i = 0; i < N; i++) {
+				for (int j = 0; j < N; j++) {
+					if (plosca[i][j] != Polje.PRAZNO) {
+						Point zeton = new Point(i,j);
+						noveSkupine.add(zeton);
+						odigrani.add(zeton);
+					}
+				}
+			}
+			for (Point u : odigrani) {
+				List<Point> sosedi = sosedi(u);
+				for (Point v : sosedi) {
+					if (plosca[v.x][v.y] == plosca[u.x][u.y]) noveSkupine.union(v, u);
+				}
+			}
+			skupine = noveSkupine;
+		}
+	}
+	
+	/**
+	 * Odigraj potezo p v igri Go
+	 * @param p
+	 * @return true, če je poteza uspešna
+	 */
+	public boolean odigrajGo(Poteza p) {
+		if (p == null) {
+			preskoci();
+			return true;
+		}
 		if (plosca[p.x()][p.y()] == Polje.PRAZNO) {
 			plosca[p.x()][p.y()] = naPotezi.getPolje();
 			Point u = new Point(p.x(), p.y());
 			dodajZetonVSkupino(u);
 			odigrani.add(u);
+			zgodovinaStanj.add(new HashSet<Point>(odigrani));
+			if (zgodovinaStanj.size() > 3) zgodovinaStanj.remove(0);
+			skips = 0;
+			odstraniUjete();
 			naPotezi = naPotezi.nasprotnik();
 			return true;
 		}
@@ -318,4 +507,5 @@ public class Igra {
 			return false;
 		}
 	}
+	
 }

@@ -33,9 +33,9 @@ public class Inteligenca extends KdoIgra{
 		Poteza kandidat = moznePoteze.get(0);
 		for (Poteza p: moznePoteze) {
 			Igra kopijaIgre = new Igra(igra);
-			kopijaIgre.odigraj (p);
+			kopijaIgre.odigrajGo (p);
 			int ocenap;
-			switch (kopijaIgre.stanje()) {
+			switch (kopijaIgre.stanjeGo()) {
 			case ZMAGA_CRNI: ocenap = (jaz == Igralec.CRNI ? ZMAGA : PORAZ); break;
 			case ZMAGA_BELI: ocenap = (jaz == Igralec.BELI ? ZMAGA : PORAZ); break;
 			case NEODLOCENO: ocenap = NEODLOC; break;

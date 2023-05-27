@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -140,7 +141,7 @@ public class Platno extends JPanel implements MouseListener, MouseMotionListener
 	        int i = (klikX - round(PADDING) + (int)razdaljaMedCrtami() / 2) / (int)razdaljaMedCrtami();
 	        int j = (klikY - round(PADDING) + (int)razdaljaMedCrtami() / 2) / (int)razdaljaMedCrtami();
 
-	        if (i >= 0 && i < Igra.N && j >= 0 && j < Igra.N && plosca[i][j] == Polje.PRAZNO) {
+	        if (i >= 0 && i < Igra.N && j >= 0 && j < Igra.N && plosca[i][j] == Polje.PRAZNO && !Vodja.igra.ilegalnaPoteza(new Point(i,j)) && !Vodja.igra.ponoviStanje(new Point(i,j))) {
 	        	Vodja.igrajClovekovoPotezo(new Poteza(i, j));; 
 	        }
 

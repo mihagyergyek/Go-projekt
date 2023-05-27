@@ -26,7 +26,7 @@ public class Vodja {
 	
 	public static void igramo () {
 		okno.osveziGUI();
-		switch (igra.stanje()) {
+		switch (igra.stanjeGo()) {
 		case ZMAGA_CRNI: 
 		case ZMAGA_BELI: 
 		case NEODLOCENO: 
@@ -60,7 +60,7 @@ public class Vodja {
 				Poteza poteza = null;
 				try {poteza = get();} catch (Exception e) {};
 				if (igra == zacetkaIgra) {
-					igra.odigraj(poteza);
+					igra.odigrajGo(poteza);
 					igramo ();
 				}
 			}
@@ -69,7 +69,7 @@ public class Vodja {
 	}
 	
 	public static void igrajClovekovoPotezo(Poteza poteza) {
-		if (igra.odigraj(poteza)) {
+		if (igra.odigrajGo(poteza)) {
 			clovekNaVrsti = false;
 			igramo ();
 		}
