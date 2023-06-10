@@ -20,6 +20,7 @@ public class Inteligenca extends KdoIgra{
 	}
 	
 	public Poteza izberiPotezo(Igra igra) {
+		if (Igra.N > 9) globina = 3;
 		Poteza poteza = alphabetaPoteze(igra, globina, PORAZ, ZMAGA, igra.naPotezi()).poteza;
 		return poteza;
 	}
@@ -60,6 +61,8 @@ public class Inteligenca extends KdoIgra{
 			if (alpha >= beta) // Izstopimo iz "for loop", saj ostale poteze ne pomagajo
 				break;
 		}
+		if (ocena < -40000) return new OcenjenaPoteza(null, ocena);
+		if (ocena > 80000 && igra.skips() == 1) return new OcenjenaPoteza(null, ocena);
 		return new OcenjenaPoteza (kandidat, ocena);
 	}
 	
