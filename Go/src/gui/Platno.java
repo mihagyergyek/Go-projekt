@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 
 import logika.Igra;
 import logika.Polje;
+import logika.Stanje;
 import splosno.Poteza;
 import vodja.Vodja;
 
@@ -30,7 +31,7 @@ public class Platno extends JPanel implements MouseListener, MouseMotionListener
 	protected Color barvaDrugegaIgralca;
 	protected Stroke debelinaCrt;
 	protected double velikostZetonov;
-	protected final double PADDING = 50;
+	protected final double PADDING = 60;
 	public static final Color BEIGE = new Color(217,179,130);
 	
 	private int klikX;
@@ -78,12 +79,28 @@ public class Platno extends JPanel implements MouseListener, MouseMotionListener
 	    int y = offsetY + round(PADDING + j * razdaljaMedCrtami() - velikostZetonov() / 2);
 
 
-	    g2.setColor(color == Polje.CRNO || color == Polje.UJET_CRNO ? barvaPrvegaIgralca : barvaDrugegaIgralca);
-	    g2.fillOval(x, y, (int)velikostZetonov(), (int)velikostZetonov());
+	    switch (color) {
+	    case CRNO :
+	    	g2.setColor(barvaPrvegaIgralca);
+	    	g2.fillOval(x, y, (int)velikostZetonov(), (int)velikostZetonov());
+	    	break;
+	    case BELO :
+	    	g2.setColor(barvaDrugegaIgralca);
+	    	g2.fillOval(x, y, (int)velikostZetonov(), (int)velikostZetonov());
+	    	break;
+	    case PRAZNO :
+	    	break;
+	    }
 
-	    if (color == Polje.UJET_BELO || color == Polje.UJET_CRNO) {
+	    if (Vodja.igra.nadzorujeBeli.contains(new Point(i, j)) || color == Polje.BELO) {
+	        g2.setColor(Color.GREEN);
+	        g2.setStroke(new BasicStroke(1));
+	        g2.drawOval(x, y, (int)velikostZetonov(), (int)velikostZetonov());
+	    }
+	    
+	    if (Vodja.igra.nadzorujeCrni.contains(new Point(i, j)) || color == Polje.CRNO) {
 	        g2.setColor(Color.RED);
-	        g2.setStroke(new BasicStroke(2));
+	        g2.setStroke(new BasicStroke(1));
 	        g2.drawOval(x, y, (int)velikostZetonov(), (int)velikostZetonov());
 	    }
 
@@ -113,9 +130,7 @@ public class Platno extends JPanel implements MouseListener, MouseMotionListener
 	        plosca = Vodja.igra.getPlosca();
 	        for (int i = 0; i < Igra.N; i++) {
 	            for (int j = 0; j < Igra.N; j++) {
-	                if (plosca[i][j] != Polje.PRAZNO) {
-	                    pobarvaj(g2, i, j, plosca[i][j]);
-	                }
+	            	pobarvaj(g2, i, j, plosca[i][j]);
 	            }
 	        }
 	    }

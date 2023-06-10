@@ -13,13 +13,15 @@ import splosno.Poteza;
 
 public class Igra {
 	
-	public static final int N = 9;
+	public static int N = 11;
 	private Polje[][] plosca;
 	private Igralec naPotezi;
 	private DisjointSets<Point> skupine;
 	private Set<Point> odigrani;
 	private int skips;
 	private List<Set<Point>> zgodovinaStanj;
+	public Set<Point> nadzorujeCrni = new HashSet<Point>();
+	public Set<Point> nadzorujeBeli = new HashSet<Point>();
 	
 	public Igra() {
 		// Zacetek nove igre
@@ -64,7 +66,6 @@ public class Igra {
 			this.zgodovinaStanj.add(stanje);
 		}
 	}
-	
 	
 	/**
 	 * @param zeton
@@ -124,6 +125,10 @@ public class Igra {
 		skupine = stareSkupine;
 	}
 	
+	/**
+	 * 
+	 * @return skupine žetonov na plošči
+	 */
 	public DisjointSets<Point> skupine() {
 		return skupine;
 	}
@@ -146,7 +151,7 @@ public class Igra {
 	}
 	
 	/**
-	 * poišče polja, ki so obkrožena le z enim igralcem ("očesa") in jih kvalificira
+	 * poišče polja, ki so obkrožena le z enim igralcem ("očesa") in jim določi lastnika
 	 * @return slovar igralcev in število "očes", ki so jih igralci ustvarili na plošči
 	 */
 	public Map<Igralec, Integer> ocesa() {
@@ -177,25 +182,58 @@ public class Igra {
 	}
 	
 	/**
+	 * funkcija določi vrednost, ki predstavlja verjetnost, da bodo polja okoli žetona pripadla igralcu
+	 * vpliv z razdaljo eksponentno pada
+	 * @param p
+	 * @return vpliv žetona na plošči
+	 */
+	public double vpliv(Point p) {
+		double tabela = 0;
+		for (int di = -1; di < 2; di++) {
+			for (int dj = -1; dj < 2; dj++) {
+				if (di + dj == 0 || Math.abs(di + dj) == 2) {
+					for (int k = 1; k < 3; k++) {
+						if (odigrani.contains(new Point(p.x + k*di, p.y + k*dj))) {
+							if (plosca[p.x + k*di][p.y + k*dj] != plosca[p.x][p.y]) break;
+						}
+						double razdalja = Math.abs(k*di) + Math.abs(k*dj);
+						if (razdalja > 0) tabela += 1 / razdalja * 100;
+					}
+				}
+				else {
+					for (int k = 1; k < 4; k++) {
+						if (odigrani.contains(new Point(p.x + k*di, p.y + k*dj))) {
+							if (plosca[p.x + k*di][p.y + k*dj] != plosca[p.x][p.y]) break;
+						}
+						double razdalja = Math.abs(k*di) + Math.abs(k*dj);
+						if (razdalja > 0) tabela += 1 / razdalja * 100;
+					}
+				}
+			}
+		}
+		return tabela;
+	}
+	
+	/**
+	 * izračuna vpliv za vse žetone in jih sešteje
+	 * @return oceno razlike vpliva, ki ga imata igralca na plošči
+	 */
+	public double trenutniVpliv() {
+		double skupaj = 0;
+		for (Point p : odigrani) {
+			if (cigavaSkupina(p) == Igralec.BELI) skupaj -= vpliv(p);
+			else skupaj += vpliv(p);
+		}
+		return skupaj;
+	}
+	
+	/**
 	 * @param predstavnik skupine
 	 * @return lastnik skupine na plošči
 	 */
 	public Igralec cigavaSkupina(Point predstavnik) {
-		if (plosca[predstavnik.x][predstavnik.y] == Polje.BELO || plosca[predstavnik.x][predstavnik.y] == Polje.UJET_BELO) return Igralec.BELI;
+		if (plosca[predstavnik.x][predstavnik.y] == Polje.BELO) return Igralec.BELI;
 		else return Igralec.CRNI;
-	}
-	
-	/**
-	 * ujeto skupino na koncu igre označi za barvanje
-	 * @param predstavnik
-	 * @param barva
-	 */
-	public void oznaciSkupino(Point predstavnik, Igralec barva) {
-		for (Point p : odigrani) {
-			if (skupine.find(p) == predstavnik) {
-				plosca[p.x][p.y] =  barva == Igralec.CRNI ? Polje.UJET_CRNO : Polje.UJET_BELO;
-			}
-		}
 	}
 	
 	/**
@@ -206,10 +244,39 @@ public class Igra {
 	}
 	
 	/**
+	 * nastavi igralca na potezi (funkcija za shranjevanje)
+	 * @param ime
+	 */
+	public void setNaPotezi(String ime) {
+		switch(ime) {
+		case "CRNI":
+			naPotezi = Igralec.CRNI;
+		case "BELI":
+			naPotezi = Igralec.BELI;
+		}
+	}
+	
+	/**
 	 * @return igralna plosca
 	 */
 	public Polje[][] getPlosca () {
 		return plosca;
+	}
+	
+	/**
+	 * 
+	 * @return število zaporednih preskočenih potez
+	 */
+	public int skips() {
+		return skips;
+	}
+	
+	/**
+	 * sprmeni število preskočenih potez (funkcija za shranjevanje)
+	 * @param n
+	 */
+	public void setSkips(int n) {
+		skips = n;
 	}
 	
 	/**
@@ -352,33 +419,30 @@ public class Igra {
 	
 	
 	/**
-	 * @param teritorij
-	 * @return lastnika in velikost teritorija
+	 * skupine na koncu igre označi za barvanje
+	 * @param teritorijiNaPlosci
+	 * @return 
 	 */
-	public int[] razresiTeritorij(Set<Point> teritorij) {
-		int[] resitevTeritorija = new int[2];
-		Set<Polje> sosediTeritorija = new HashSet<Polje>();
-		for (Point p : teritorij) {
-			for (Point q : sosedi(p)) {
-				if (plosca[q.x][q.y] != Polje.PRAZNO) sosediTeritorija.add(plosca[q.x][q.y]);
+	public void oznaciSkupine(Map<Point,Set<Point>> teritorijiNaPlosci) {
+		for (Point p : teritorijiNaPlosci.keySet()) {
+			if (razresiTeritorij(teritorijiNaPlosci.get(p))[0] == 1) {
+				for (Point q : teritorijiNaPlosci.get(p)) {
+					nadzorujeCrni.add(q);
+				}
+			}
+			else if (razresiTeritorij(teritorijiNaPlosci.get(p))[0] == -1) {
+				for (Point q : teritorijiNaPlosci.get(p)) {
+					nadzorujeBeli.add(q);
+				}
 			}
 		}
-		//Če teritorij omejujejo samo žetoni ene barve, ima lastnika in velikost
-		if (sosediTeritorija.size() == 1) {
-			if (sosediTeritorija.iterator().next() == Polje.CRNO) resitevTeritorija[0] = 1;
-			else resitevTeritorija[0] = -1;
-			resitevTeritorija[1] = teritorij.size();
-			return resitevTeritorija;
-		}
-		//Sicer teritorij nima lastnika
-		else return new int[] {0, 0};
 	}
 	
 	/**
 	 * 
-	 * @return zmagovalca igre Go glede na obvladovan teritorij
+	 * @return teritoriji na plošči
 	 */
-	public Stanje razdelitevTeritorija() {
+	public Map<Point,Set<Point>> teritorijiNaPlosci() {
 		DisjointSets<Point> teritorij = new FastSets<Point>();
 		Set<Point> prosta = new HashSet<Point>();
 		//Poiščemo vsa prazna polja
@@ -412,6 +476,65 @@ public class Igra {
 				teritorijiNaPlosci.put(key, skupina);
 			}
 		}
+		return teritorijiNaPlosci;
+	}
+	
+	/**
+	 * @param teritorij
+	 * @return lastnika in velikost teritorija
+	 */
+	public int[] razresiTeritorij(Set<Point> teritorij) {
+		int[] resitevTeritorija = new int[2];
+		Set<Polje> sosediTeritorija = new HashSet<Polje>();
+		for (Point p : teritorij) {
+			for (Point q : sosedi(p)) {
+				if (plosca[q.x][q.y] != Polje.PRAZNO) sosediTeritorija.add(plosca[q.x][q.y]);
+			}
+		}
+		//Če teritorij omejujejo samo žetoni ene barve, ima lastnika in velikost
+		if (sosediTeritorija.size() == 1) {
+			if (sosediTeritorija.iterator().next() == Polje.CRNO) resitevTeritorija[0] = 1;
+			else resitevTeritorija[0] = -1;
+			resitevTeritorija[1] = teritorij.size();
+			return resitevTeritorija;
+		}
+		//Sicer teritorij nima lastnika
+		else return new int[] {0, 0};
+	}
+	
+	/**
+	 * 
+	 * @return velikost teritorijev, ki jih igralca nadzorujeta (za statusno vrstico)
+	 */
+	public int[] rezultat() {
+		int[] rezultat = new int[2];
+		int crni = 0;
+		int beli = 0;
+		Map<Point, Set<Point>> teritorijiNaPlosci = teritorijiNaPlosci();
+		for (Point p : teritorijiNaPlosci.keySet()) {
+			int[] resitev = razresiTeritorij(teritorijiNaPlosci.get(p));
+			if (resitev[0] == 1) crni += 1;
+			else if (resitev[0] == -1) beli += 1;
+		}
+		for (Point p : odigrani) {
+			if (plosca[p.x][p.y] == Polje.CRNO) {
+				crni += 1;
+			}
+			else {
+				beli += 1;
+			}
+		}
+		rezultat[0] = crni;
+		rezultat[1] = beli;
+		return rezultat;
+	}
+	
+	/**
+	 * 
+	 * @return zmagovalca igre Go glede na obvladan teritorij
+	 */
+	public Stanje razdelitevTeritorija() {
+		Map<Point, Set<Point>> teritorijiNaPlosci = teritorijiNaPlosci();
 		//Določimo, koliko teritorija nadzorujeta igralca
 		int razlikaVelikostiTeritorijev = 0;
 		for (Point p : teritorijiNaPlosci.keySet()) {
@@ -419,11 +542,15 @@ public class Igra {
 			razlikaVelikostiTeritorijev += resitev[0] * resitev[1];
 		}
 		for (Point p : odigrani) {
-			if (plosca[p.x][p.y] == Polje.CRNO) razlikaVelikostiTeritorijev += 1;
-			else razlikaVelikostiTeritorijev -= 1;
+			if (plosca[p.x][p.y] == Polje.CRNO) {
+				razlikaVelikostiTeritorijev += 1;
+			}
+			else {
+				razlikaVelikostiTeritorijev -= 1;
+			}
 		}
 		//Določimo zmagovalca
-		System.out.println(razlikaVelikostiTeritorijev);
+		oznaciSkupine(teritorijiNaPlosci);
 		if (razlikaVelikostiTeritorijev > 0) return Stanje.ZMAGA_CRNI;
 		else if (razlikaVelikostiTeritorijev < 0) return Stanje.ZMAGA_BELI;
 		else return Stanje.NEODLOCENO;
@@ -487,9 +614,14 @@ public class Igra {
 	 * @return true, če je poteza uspešna
 	 */
 	public boolean odigrajGo(Poteza p) {
-		if (p == null) {
+		//prepreči konec igre takoj na začetku
+		if (p == null && odigrani.size() > 0) {
 			preskoci();
 			return true;
+		}
+		if (p == null) {
+			p = poteze().get(0);
+			return odigrajGo(p);
 		}
 		if (plosca[p.x()][p.y()] == Polje.PRAZNO) {
 			plosca[p.x()][p.y()] = naPotezi.getPolje();

@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.util.EnumMap;
 
 import javax.swing.JColorChooser;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -30,11 +31,11 @@ public class Okno extends JFrame implements ActionListener {
 	private JLabel status;
 	private JMenuItem menuClovekClovek, menuClovekRacunalnik, menuRacunalnikClovek, menuRacunalnikRacunalnik;
 	private JMenuItem menuBarvaPlosce, menuBarvaCrt, menuBarvaPrvegaIgralca, menuBarvaDrugegaIgralca;
-	private JMenuItem menuDebelinaCrt, menuVelikostZetonov;
+	private JMenuItem menuDebelinaCrt, menuVelikostZetonov, menuOdpri, menuShrani;
 	
 	public Okno() {
 		super();
-		this.setTitle("Igra Capture GO");
+		this.setTitle("Igra GO");
 		platno = new Platno();
 		
 		JMenuBar menubar = new JMenuBar();
@@ -42,6 +43,7 @@ public class Okno extends JFrame implements ActionListener {
 		
 		JMenu menuNovaIgra = dodajMenu(menubar, "Nova igra");
 		JMenu menuNastavitve = dodajMenu(menubar, "Nastavitve");
+		JMenu menuIgra = dodajMenu(menubar, "Igra");
 		
 		menuClovekClovek = dodajMenuItem(menuNovaIgra, "Človek proti človeku");
 		menuClovekRacunalnik = dodajMenuItem(menuNovaIgra, "Človek proti računalniku");
@@ -54,6 +56,8 @@ public class Okno extends JFrame implements ActionListener {
 		menuBarvaCrt = dodajMenuItem(menuNastavitve, "Barva črt ...");
 		menuDebelinaCrt = dodajMenuItem(menuNastavitve, "Debelina crt ...");
 		menuVelikostZetonov = dodajMenuItem(menuNastavitve, "Velikost žetonov ...");
+		menuOdpri = dodajMenuItem(menuIgra, "Odpri...");
+		menuShrani = dodajMenuItem(menuIgra, "Shrani...");
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
@@ -171,6 +175,22 @@ public class Okno extends JFrame implements ActionListener {
 				repaint();
 			}
 		}
+		else if (objekt == menuOdpri) {
+			JFileChooser dialog = new JFileChooser();
+			int izbira = dialog.showOpenDialog(this);
+			if (izbira == JFileChooser.APPROVE_OPTION) {
+				String ime = dialog.getSelectedFile().getPath();
+				Vodja.odpriIgro(ime);
+			}
+		}
+		else if (objekt == menuShrani) {
+			JFileChooser dialog = new JFileChooser();
+			int izbira = dialog.showOpenDialog(this);
+			if (izbira == JFileChooser.APPROVE_OPTION) {
+				String ime = dialog.getSelectedFile().getPath();
+				Vodja.shrani(ime);
+			}
+		}
 	}
 	public void osveziGUI() {
 		if (Vodja.igra == null) {
@@ -178,18 +198,20 @@ public class Okno extends JFrame implements ActionListener {
 		}
 		else {
 			switch(Vodja.igra.stanjeGo()) {
-			case NEODLOCENO: status.setText("Neodločeno!"); break;
+			case NEODLOCENO: 
+				status.setText("Neodločeno!" + " (Črni " + Vodja.igra.rezultat()[0] + " : " + Vodja.igra.rezultat()[1] + " Beli)"); 
+				break;
 			case V_TEKU: 
 				status.setText("Na potezi je " + Vodja.igra.naPotezi() + 
 						" - " + Vodja.vrstaIgralca.get(Vodja.igra.naPotezi())); 
 				break;
 			case ZMAGA_BELI: 
 				status.setText("Zmagal je beli igralec! (" + 
-						Vodja.vrstaIgralca.get(Vodja.igra.naPotezi().nasprotnik()) + ")");
+						Vodja.vrstaIgralca.get(Vodja.igra.naPotezi().nasprotnik()) + ") " + "(Črni " + Vodja.igra.rezultat()[0] + " : " + Vodja.igra.rezultat()[1] + " Beli)");
 				break;
 			case ZMAGA_CRNI: 
 				status.setText("Zmagal je črni igralec! (" +
-						Vodja.vrstaIgralca.get(Vodja.igra.naPotezi().nasprotnik()) + ")");
+						Vodja.vrstaIgralca.get(Vodja.igra.naPotezi().nasprotnik()) + ") " + "(Črni " + Vodja.igra.rezultat()[0] + " : " + Vodja.igra.rezultat()[1] + " Beli)");
 				break;
 			}
 		}
