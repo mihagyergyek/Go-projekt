@@ -7,7 +7,7 @@ V tem repozitoriju se nahajajo datoteke za igro Go. Datoteke za to igro najdemo 
 ## Prvi zagon
 Za začetek potrebujemo vse datoteke iz mape src (ali Tekmovanje). Igro nato poženemo tako, da zaženemo metodo main v datoteki Go.java (oziroma CaptureGo.java).
 
-## Nadaljan uporaba
+## Nadaljna uporaba
 Igro zaženemo z metodo main.
 
 ## Uporaba
@@ -21,7 +21,7 @@ Z izbiro se začne nova igra.
 
 ## Druge nastavitve
 Kadarkoli med igro lahko spremenimo barvo žetonov, velikost žetonov (vrednost med 0 in 1) in barvo plošče. Spreminjanje velikosti plošče med igro bo trenutno igro prekinilo.
-Prav tako lahko med igro trenutno igro shranimo ali odpremo staro igro. To naredimo v meniju Igra.
+Prav tako lahko med igro trenutno igro shranimo ali odpremo staro igro. To naredimo v meniju Igra. Trenutna igra se avtomatsko shranjuje v trenutna_igra.txt.
 Opozorilo: shranjevanje ne shrani prejšnjih pozicij v igri, zato se po odprtju stare igre lahko krši ko pravilo.
 
 ## Pravila igre
