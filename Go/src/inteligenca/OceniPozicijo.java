@@ -36,9 +36,9 @@ public class OceniPozicijo {
 		}
 		povprecnoLibertiesJaz = steviloLibertiesJaz / steviloSkupinJaz;
 		povprecnoLibertiesNasprotnik = steviloLibertiesNasprotnik / steviloSkupinNasprotnik;
-		return -1300 * steviloSkupinJaz -390 * steviloOgrozenihJaz + 200 * steviloLibertiesJaz + 250 * povprecnoLibertiesJaz + 800 * ocesa.get(jaz)
-				+ 1300 * steviloSkupinNasprotnik + 330 * steviloOgrozenihNasprotnik -220 * steviloLibertiesNasprotnik -290 * povprecnoLibertiesNasprotnik - 800 * ocesa.get(jaz.nasprotnik())
-				+ 4 * vpliv; 
+		return -3500 * steviloSkupinJaz -100 * steviloOgrozenihJaz + 200 * steviloLibertiesJaz + 250 * povprecnoLibertiesJaz + 800 * ocesa.get(jaz)
+				+ 1300 * steviloSkupinNasprotnik + 100 * steviloOgrozenihNasprotnik -200 * steviloLibertiesNasprotnik -200 * povprecnoLibertiesNasprotnik - 800 * ocesa.get(jaz.nasprotnik())
+				+ 800 * vpliv; 
 	}	
 	
 }

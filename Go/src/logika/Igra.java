@@ -13,7 +13,7 @@ import splosno.Poteza;
 
 public class Igra {
 	
-	public static int N = 11;
+	public static int N = 13;
 	private Polje[][] plosca;
 	private Igralec naPotezi;
 	private DisjointSets<Point> skupine;
@@ -197,7 +197,7 @@ public class Igra {
 							if (plosca[p.x + k*di][p.y + k*dj] != plosca[p.x][p.y]) break;
 						}
 						double razdalja = Math.abs(k*di) + Math.abs(k*dj);
-						if (razdalja > 0) tabela += 1 / razdalja * 100;
+						if (razdalja > 0) tabela += 0.5 * 1 / razdalja * 100;
 					}
 				}
 				else {
@@ -206,7 +206,7 @@ public class Igra {
 							if (plosca[p.x + k*di][p.y + k*dj] != plosca[p.x][p.y]) break;
 						}
 						double razdalja = Math.abs(k*di) + Math.abs(k*dj);
-						if (razdalja > 0) tabela += 1 / razdalja * 100;
+						if (razdalja > 0) tabela += 0.5 * 1 / razdalja * 100;
 					}
 				}
 			}
