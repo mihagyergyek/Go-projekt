@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.util.EnumMap;
 
 import javax.swing.JColorChooser;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -17,6 +18,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
+import logika.Igra;
 import logika.Igralec;
 import vodja.Vodja;
 import vodja.VrstaIgralca;
@@ -30,11 +32,11 @@ public class Okno extends JFrame implements ActionListener {
 	private JLabel status;
 	private JMenuItem menuClovekClovek, menuClovekRacunalnik, menuRacunalnikClovek, menuRacunalnikRacunalnik;
 	private JMenuItem menuBarvaPlosce, menuBarvaCrt, menuBarvaPrvegaIgralca, menuBarvaDrugegaIgralca;
-	private JMenuItem menuDebelinaCrt, menuVelikostZetonov;
+	private JMenuItem menuDebelinaCrt, menuVelikostZetonov, menuVelikostPolja, menuOdpri, menuShrani, menuPreskoci;
 	
 	public Okno() {
 		super();
-		this.setTitle("Igra Capture GO");
+		this.setTitle("Igra GO");
 		platno = new Platno();
 		
 		JMenuBar menubar = new JMenuBar();
@@ -42,6 +44,8 @@ public class Okno extends JFrame implements ActionListener {
 		
 		JMenu menuNovaIgra = dodajMenu(menubar, "Nova igra");
 		JMenu menuNastavitve = dodajMenu(menubar, "Nastavitve");
+		JMenu menuIgra = dodajMenu(menubar, "Igra");
+		JMenu menuPoteza = dodajMenu(menubar, "Poteza");
 		
 		menuClovekClovek = dodajMenuItem(menuNovaIgra, "Človek proti človeku");
 		menuClovekRacunalnik = dodajMenuItem(menuNovaIgra, "Človek proti računalniku");
@@ -54,6 +58,10 @@ public class Okno extends JFrame implements ActionListener {
 		menuBarvaCrt = dodajMenuItem(menuNastavitve, "Barva črt ...");
 		menuDebelinaCrt = dodajMenuItem(menuNastavitve, "Debelina crt ...");
 		menuVelikostZetonov = dodajMenuItem(menuNastavitve, "Velikost žetonov ...");
+		menuVelikostPolja = dodajMenuItem(menuNastavitve, "Velikost polja...");
+		menuOdpri = dodajMenuItem(menuIgra, "Odpri...");
+		menuShrani = dodajMenuItem(menuIgra, "Shrani...");
+		menuPreskoci = dodajMenuItem(menuPoteza, "Preskoči potezo");
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
@@ -163,7 +171,13 @@ public class Okno extends JFrame implements ActionListener {
 				repaint();
 			}
 		}
-		
+		else if (objekt == menuVelikostPolja) {
+			String velikostPolja = JOptionPane.showInputDialog(this, "Velikost polja:");
+			if (velikostPolja != null && velikostPolja.matches("\\d+")) {
+				Igra.N = Integer.parseInt(velikostPolja);
+				repaint();
+			}
+		}
 		else if (objekt == menuVelikostZetonov) {
 			String velikostZetonov = JOptionPane.showInputDialog(this, "Velikost žetonov:");
 			if (velikostZetonov != null && velikostZetonov.matches("\\d+")) {
@@ -171,25 +185,46 @@ public class Okno extends JFrame implements ActionListener {
 				repaint();
 			}
 		}
+		else if (objekt == menuOdpri) {
+			JFileChooser dialog = new JFileChooser();
+			int izbira = dialog.showOpenDialog(this);
+			if (izbira == JFileChooser.APPROVE_OPTION) {
+				String ime = dialog.getSelectedFile().getPath();
+				Vodja.odpriIgro(ime);
+			}
+		}
+		else if (objekt == menuShrani) {
+			JFileChooser dialog = new JFileChooser();
+			int izbira = dialog.showOpenDialog(this);
+			if (izbira == JFileChooser.APPROVE_OPTION) {
+				String ime = dialog.getSelectedFile().getPath();
+				Vodja.shrani(ime);
+			}
+		}
+		else if (objekt == menuPreskoci) {
+			if (Vodja.igra != null) Vodja.igra.preskoci();
+		}
 	}
 	public void osveziGUI() {
 		if (Vodja.igra == null) {
 			status.setText("Igra ni v teku.");
 		}
 		else {
-			switch(Vodja.igra.stanje()) {
-			case NEODLOCENO: status.setText("Neodločeno!"); break;
+			switch(Vodja.igra.stanjeGo()) {
+			case NEODLOCENO: 
+				status.setText("Neodločeno!" + " (Črni " + Vodja.igra.rezultat()[0] + " : " + Vodja.igra.rezultat()[1] + " Beli)"); 
+				break;
 			case V_TEKU: 
 				status.setText("Na potezi je " + Vodja.igra.naPotezi() + 
 						" - " + Vodja.vrstaIgralca.get(Vodja.igra.naPotezi())); 
 				break;
 			case ZMAGA_BELI: 
 				status.setText("Zmagal je beli igralec! (" + 
-						Vodja.vrstaIgralca.get(Vodja.igra.naPotezi().nasprotnik()) + ")");
+						Vodja.vrstaIgralca.get(Vodja.igra.naPotezi().nasprotnik()) + ") " + "(Črni " + Vodja.igra.rezultat()[0] + " : " + Vodja.igra.rezultat()[1] + " Beli)");
 				break;
 			case ZMAGA_CRNI: 
 				status.setText("Zmagal je črni igralec! (" +
-						Vodja.vrstaIgralca.get(Vodja.igra.naPotezi().nasprotnik()) + ")");
+						Vodja.vrstaIgralca.get(Vodja.igra.naPotezi().nasprotnik()) + ") " + "(Črni " + Vodja.igra.rezultat()[0] + " : " + Vodja.igra.rezultat()[1] + " Beli)");
 				break;
 			}
 		}
