@@ -4,24 +4,24 @@ import java.util.List;
 
 import logika.Igra;
 import logika.Igralec;
+import splosno.KdoIgra;
 import splosno.Poteza;
 
-public class Alphabeta extends Inteligenca{
+public class Inteligenca extends KdoIgra{
 	
 	private static final int ZMAGA = 1000000000; // vrednost zmage
 	private static final int PORAZ = -ZMAGA;  // vrednost poraza
 	private static final int NEODLOC = 0;  // vrednost neodločene igre	
 	
-	private int globina;
+	private int globina = 4; //globina pregledovanja
 	
-	public Alphabeta (int globina) {
-		super();
-		this.globina = globina;
+	public Inteligenca () {
+		super("Miha in Tiana");
 	}
 	
-	@Override
 	public Poteza izberiPotezo(Igra igra) {
-		return alphabetaPoteze(igra, this.globina, PORAZ, ZMAGA, igra.naPotezi()).poteza;
+		Poteza poteza = alphabetaPoteze(igra, globina, PORAZ, ZMAGA, igra.naPotezi()).poteza;
+		return poteza;
 	}
 	
 	public OcenjenaPoteza alphabetaPoteze(Igra igra, int globina, int alpha, int beta, Igralec jaz) {

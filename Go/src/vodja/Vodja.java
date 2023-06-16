@@ -1,13 +1,19 @@
 package vodja;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.EnumMap;
 import java.util.Map;
 import javax.swing.SwingWorker;
 
 import gui.Okno;
-import inteligenca.Alphabeta;
 import inteligenca.Inteligenca;
 import logika.Igra;
 import logika.Igralec;
+import logika.Polje;
 import splosno.Poteza;
 
 public class Vodja {
@@ -25,9 +31,85 @@ public class Vodja {
 		igramo ();
 	}
 	
+	public static void shrani(String izhod) {
+		try {
+			PrintWriter dat = new PrintWriter(new FileWriter(izhod));
+			dat.println(Igra.N);
+			dat.println(Vodja.vrstaIgralca.get(Igralec.CRNI));
+			dat.println(Vodja.vrstaIgralca.get(Igralec.BELI));
+			dat.println(igra.naPotezi());
+			dat.println(igra.skips());
+			for (int i = 0; i < Igra.N; i++) {
+				for (int j = 0; j < Igra.N; j++) {
+					dat.println(igra.getPlosca()[i][j]);
+				}
+			}
+			dat.close();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void odpriIgro(String vhod) {
+		try {
+			BufferedReader dat = new BufferedReader(new FileReader(vhod));
+			Igra.N = Integer.parseInt(dat.readLine().strip());
+			igra = new Igra();
+			Vodja.vrstaIgralca = new EnumMap<Igralec,VrstaIgralca>(Igralec.class);
+			switch (dat.readLine().strip()) {
+			case "človek":
+				Vodja.vrstaIgralca.put(Igralec.CRNI, VrstaIgralca.C);
+				break;
+			case "računalnik":
+				Vodja.vrstaIgralca.put(Igralec.CRNI, VrstaIgralca.R);
+				break;
+			}
+			switch (dat.readLine().strip()) {
+			case "človek":
+				Vodja.vrstaIgralca.put(Igralec.BELI, VrstaIgralca.C);
+				break;
+			case "računalnik":
+				Vodja.vrstaIgralca.put(Igralec.BELI, VrstaIgralca.R);
+				break;
+			}
+			switch (dat.readLine().strip()) {
+			case "Crni":
+				Vodja.igra.setNaPotezi("CRNI");
+				break;
+			case "Beli":
+				Vodja.igra.setNaPotezi("BELI");
+				break;
+			}
+			igra.setSkips(Integer.parseInt(dat.readLine().strip()));
+			for (int i = 0; i < Igra.N; i++) {
+				for (int j = 0; j < Igra.N; j++) {
+					switch (dat.readLine().strip()) {
+					case "PRAZNO":
+						Vodja.igra.getPlosca()[i][j] = Polje.PRAZNO;
+						break;
+					case "CRNO":
+						Vodja.igra.getPlosca()[i][j] = Polje.CRNO;
+						break;
+					case "BELO":
+						Vodja.igra.getPlosca()[i][j] = Polje.BELO;
+						break;
+					}
+				}
+			}
+			dat.close();
+			Vodja.igra = new Igra(igra);
+			igramo();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static void igramo () {
+		shrani("trenutna_igra.txt");
 		okno.osveziGUI();
-		switch (igra.stanje()) {
+		switch (igra.stanjeGo()) {
 		case ZMAGA_CRNI: 
 		case ZMAGA_BELI: 
 		case NEODLOCENO: 
@@ -46,7 +128,7 @@ public class Vodja {
 		}
 	}
 	
-	public static Inteligenca racunalnikovaInteligenca = new Alphabeta(4);
+	public static Inteligenca racunalnikovaInteligenca = new Inteligenca();
 	
 	public static void igrajRacunalnikovoPotezo() {
 		Igra zacetkaIgra = igra;
@@ -61,7 +143,7 @@ public class Vodja {
 				Poteza poteza = null;
 				try {poteza = get();} catch (Exception e) {};
 				if (igra == zacetkaIgra) {
-					igra.odigraj(poteza);
+					igra.odigrajGo(poteza);
 					igramo ();
 				}
 			}
@@ -70,7 +152,7 @@ public class Vodja {
 	}
 	
 	public static void igrajClovekovoPotezo(Poteza poteza) {
-		if (igra.odigraj(poteza)) {
+		if (igra.odigrajGo(poteza)) {
 			clovekNaVrsti = false;
 			igramo ();
 		}

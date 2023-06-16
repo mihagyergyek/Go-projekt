@@ -11,8 +11,6 @@ public class OceniPozicijo {
 	
 	public static int oceniPozicijo(Igra igra, Igralec jaz) {
 		Map<Igralec, Integer> ocesa = igra.ocesa();
-		int vpliv = (int) igra.trenutniVpliv();
-		if (jaz == Igralec.BELI) vpliv *= -1;
 		int steviloSkupinJaz = 0;
 		int steviloOgrozenihJaz = 0;
 		int steviloLibertiesJaz = 0;
@@ -21,8 +19,9 @@ public class OceniPozicijo {
 		int steviloOgrozenihNasprotnik = 0;
 		int steviloLibertiesNasprotnik = 0;
 		int povprecnoLibertiesNasprotnik = 0;
-		for (Point p : igra.skupineNaPlosciVseLiberties().keySet()) {
-			Set<Point> opazovanaSkupina = igra.skupineNaPlosciVseLiberties().get(p);
+		Map<Point, Set<Point>> liberties = igra.skupineNaPlosciVseLiberties();
+		for (Point p : liberties.keySet()) {
+			Set<Point> opazovanaSkupina = liberties.get(p);
 			if (igra.cigavaSkupina(p) == jaz) {
 				steviloSkupinJaz += 1;
 				steviloLibertiesJaz += opazovanaSkupina.size();
@@ -36,9 +35,8 @@ public class OceniPozicijo {
 		}
 		povprecnoLibertiesJaz = steviloLibertiesJaz / steviloSkupinJaz;
 		povprecnoLibertiesNasprotnik = steviloLibertiesNasprotnik / steviloSkupinNasprotnik;
-		return -3500 * steviloSkupinJaz -100 * steviloOgrozenihJaz + 200 * steviloLibertiesJaz + 250 * povprecnoLibertiesJaz + 800 * ocesa.get(jaz)
-				+ 1300 * steviloSkupinNasprotnik + 100 * steviloOgrozenihNasprotnik -200 * steviloLibertiesNasprotnik -200 * povprecnoLibertiesNasprotnik - 800 * ocesa.get(jaz.nasprotnik())
-				+ 800 * vpliv; 
+		return -35 * steviloSkupinJaz -3900 * steviloOgrozenihJaz + 200 * steviloLibertiesJaz + 250 * povprecnoLibertiesJaz + 1200 * ocesa.get(jaz)
+				+ 13 * steviloSkupinNasprotnik + 3300 * steviloOgrozenihNasprotnik -220 * steviloLibertiesNasprotnik -290 * povprecnoLibertiesNasprotnik - 1200 * ocesa.get(jaz.nasprotnik()); 
 	}	
 	
 }
