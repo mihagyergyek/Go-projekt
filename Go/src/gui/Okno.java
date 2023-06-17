@@ -174,7 +174,9 @@ public class Okno extends JFrame implements ActionListener {
 		else if (objekt == menuVelikostPolja) {
 			String velikostPolja = JOptionPane.showInputDialog(this, "Velikost polja:");
 			if (velikostPolja != null && velikostPolja.matches("\\d+")) {
+				Vodja.igra = null;
 				Igra.N = Integer.parseInt(velikostPolja);
+				osveziGUI();
 				repaint();
 			}
 		}
@@ -202,7 +204,9 @@ public class Okno extends JFrame implements ActionListener {
 			}
 		}
 		else if (objekt == menuPreskoci) {
-			if (Vodja.igra != null) Vodja.igra.preskoci();
+			if (Vodja.igra != null && Vodja.clovekNaVrsti == true) {
+				Vodja.igrajClovekovoPotezo(null);
+			}
 		}
 	}
 	public void osveziGUI() {
@@ -219,12 +223,12 @@ public class Okno extends JFrame implements ActionListener {
 						" - " + Vodja.vrstaIgralca.get(Vodja.igra.naPotezi())); 
 				break;
 			case ZMAGA_BELI: 
-				status.setText("Zmagal je beli igralec! (" + 
-						Vodja.vrstaIgralca.get(Vodja.igra.naPotezi().nasprotnik()) + ") " + "(Črni " + Vodja.igra.rezultat()[0] + " : " + Vodja.igra.rezultat()[1] + " Beli)");
+				status.setText("Zmagal je beli igralec! " + 
+						"(Črni " + Vodja.igra.rezultat()[0] + " : " + Vodja.igra.rezultat()[1] + " Beli)");
 				break;
 			case ZMAGA_CRNI: 
-				status.setText("Zmagal je črni igralec! (" +
-						Vodja.vrstaIgralca.get(Vodja.igra.naPotezi().nasprotnik()) + ") " + "(Črni " + Vodja.igra.rezultat()[0] + " : " + Vodja.igra.rezultat()[1] + " Beli)");
+				status.setText("Zmagal je črni igralec! " +
+						"(Črni " + Vodja.igra.rezultat()[0] + " : " + Vodja.igra.rezultat()[1] + " Beli)");
 				break;
 			}
 		}

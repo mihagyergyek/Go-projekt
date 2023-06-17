@@ -32,6 +32,7 @@ public class Vodja {
 	}
 	
 	public static void shrani(String izhod) {
+		//Kopija trenutne igre
 		try {
 			PrintWriter dat = new PrintWriter(new FileWriter(izhod));
 			dat.println(Igra.N);
@@ -57,6 +58,7 @@ public class Vodja {
 			Igra.N = Integer.parseInt(dat.readLine().strip());
 			igra = new Igra();
 			Vodja.vrstaIgralca = new EnumMap<Igralec,VrstaIgralca>(Igralec.class);
+			//Kdo je igral
 			switch (dat.readLine().strip()) {
 			case "človek":
 				Vodja.vrstaIgralca.put(Igralec.CRNI, VrstaIgralca.C);
@@ -73,6 +75,7 @@ public class Vodja {
 				Vodja.vrstaIgralca.put(Igralec.BELI, VrstaIgralca.R);
 				break;
 			}
+			//Kdo je bil na potezi
 			switch (dat.readLine().strip()) {
 			case "Crni":
 				Vodja.igra.setNaPotezi("CRNI");
@@ -81,6 +84,7 @@ public class Vodja {
 				Vodja.igra.setNaPotezi("BELI");
 				break;
 			}
+			//Kakšna je bila plošča
 			igra.setSkips(Integer.parseInt(dat.readLine().strip()));
 			for (int i = 0; i < Igra.N; i++) {
 				for (int j = 0; j < Igra.N; j++) {

@@ -36,7 +36,7 @@ public class OceniPozicijo {
 		}
 		povprecnoLibertiesJaz = steviloLibertiesJaz / steviloSkupinJaz;
 		povprecnoLibertiesNasprotnik = steviloLibertiesNasprotnik / steviloSkupinNasprotnik;
-		return -3500 * steviloSkupinJaz -100 * steviloOgrozenihJaz + 200 * steviloLibertiesJaz + 250 * povprecnoLibertiesJaz + 800 * ocesa.get(jaz)
+		return -1500 * steviloSkupinJaz -100 * steviloOgrozenihJaz + 200 * steviloLibertiesJaz + 250 * povprecnoLibertiesJaz + 1200 * ocesa.get(jaz)
 				+ 1300 * steviloSkupinNasprotnik + 100 * steviloOgrozenihNasprotnik -200 * steviloLibertiesNasprotnik -200 * povprecnoLibertiesNasprotnik - 800 * ocesa.get(jaz.nasprotnik())
 				+ 800 * vpliv; 
 	}	

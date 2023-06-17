@@ -62,8 +62,12 @@ public class Inteligenca extends KdoIgra{
 			if (alpha >= beta) // Izstopimo iz "for loop", saj ostale poteze ne pomagajo
 				break;
 		}
-		if (ocena < -18000000) return new OcenjenaPoteza(null, ocena);
-		if (ocena > 20000000 && igra.skips() == 1) return new OcenjenaPoteza(null, ocena);
+		if (ocena < -1.1*Igra.N*1000000) return new OcenjenaPoteza(null, ocena); //Če je položaj preslab, se predamo
+		if (igra.skips() == 1) {
+			//Če se nasprotnik preda, končamo igro
+			if (jaz == Igralec.CRNI && igra.rezultat()[0] > igra.rezultat()[1]) return new OcenjenaPoteza(null, ocena);
+			else if (jaz == Igralec.BELI && igra.rezultat()[1] > igra.rezultat()[0]) return new OcenjenaPoteza(null, ocena);
+		}
 		return new OcenjenaPoteza (kandidat, ocena);
 	}
 	

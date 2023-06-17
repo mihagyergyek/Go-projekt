@@ -13,7 +13,7 @@ import splosno.Poteza;
 
 public class Igra {
 	
-	public static int N = 13;
+	public static int N = 15;
 	private Polje[][] plosca;
 	private Igralec naPotezi;
 	private DisjointSets<Point> skupine;
@@ -272,11 +272,15 @@ public class Igra {
 	}
 	
 	/**
-	 * sprmeni število preskočenih potez (funkcija za shranjevanje)
+	 * spremeni število preskočenih potez (funkcija za shranjevanje)
 	 * @param n
 	 */
 	public void setSkips(int n) {
 		skips = n;
+	}
+	
+	public Set<Point> odigrani() {
+		return odigrani;
 	}
 	
 	/**
@@ -398,6 +402,9 @@ public class Igra {
 		return ps;
 	}
 	
+	/**
+	 * preskočimo potezo
+	 */
 	public void preskoci() {
 		naPotezi = naPotezi.nasprotnik();
 		skips += 1;
@@ -513,8 +520,8 @@ public class Igra {
 		Map<Point, Set<Point>> teritorijiNaPlosci = teritorijiNaPlosci();
 		for (Point p : teritorijiNaPlosci.keySet()) {
 			int[] resitev = razresiTeritorij(teritorijiNaPlosci.get(p));
-			if (resitev[0] == 1) crni += 1;
-			else if (resitev[0] == -1) beli += 1;
+			if (resitev[0] == 1) crni += resitev[1];
+			else if (resitev[0] == -1) beli += resitev[1];
 		}
 		for (Point p : odigrani) {
 			if (plosca[p.x][p.y] == Polje.CRNO) {

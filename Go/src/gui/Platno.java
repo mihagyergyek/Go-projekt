@@ -16,7 +16,6 @@ import javax.swing.JPanel;
 
 import logika.Igra;
 import logika.Polje;
-import logika.Stanje;
 import splosno.Poteza;
 import vodja.Vodja;
 

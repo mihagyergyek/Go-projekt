@@ -16,8 +16,9 @@ Nato v meniju Nova igra izberemo eno od naslednjih možnosti:
 - Človek - človek: dva človeška igralca lahko igrata en proti drugemu
 - Človek - računalnik: človek igra proti računalniškemu igralcu in igra prvi (kot črni)
 - Računalnik - človek: človek igra proti računalniškemu igralcu in igra drugi (kot beli)
-- Računalnik - računalnik: računalniška igralca igrata en proti drugemu, priporočena velikost plošče je med 9x9 in 13x13
-Z izbiro se začne nova igra.
+- Računalnik - računalnik: računalniška igralca igrata en proti drugemu
+
+Priporočena velikost plošče z računalniškim igralcem je med 9x9 in 15x15. Z izbiro se začne nova igra.
 
 ## Druge nastavitve
 Kadarkoli med igro lahko spremenimo barvo žetonov, velikost žetonov (vrednost med 0 in 1) in barvo plošče. Spreminjanje velikosti plošče med igro bo trenutno igro prekinilo.
