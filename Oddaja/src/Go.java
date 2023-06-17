@@ -1,7 +1,7 @@
 import gui.Okno;
 import vodja.Vodja;
 
-public class CaptureGo {
+public class Go {
 
 	public static void main(String[] args) {
 		Okno glavno_okno = new Okno();
