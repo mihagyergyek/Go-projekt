@@ -13,15 +13,14 @@ public class Inteligenca extends KdoIgra{
 	private static final int PORAZ = -ZMAGA;  // vrednost poraza
 	private static final int NEODLOC = 0;  // vrednost neodločene igre	
 	
-	private int globina = 4; //globina pregledovanja
+	private int globina = 3; //globina pregledovanja
 	
 	public Inteligenca () {
 		super("Miha in Tiana");
 	}
 	
 	public Poteza izberiPotezo(Igra igra) {
-		if (Igra.N > 8) globina = 3;
-		if (Igra.N > 10) globina = 2;
+		if (Igra.N > 8) globina = 2;
 		Poteza poteza = alphabetaPoteze(igra, globina, PORAZ, ZMAGA, igra.naPotezi()).poteza;
 		return poteza;
 	}
