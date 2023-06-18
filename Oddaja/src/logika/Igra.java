@@ -251,8 +251,10 @@ public class Igra {
 		switch(ime) {
 		case "CRNI":
 			naPotezi = Igralec.CRNI;
+			break;
 		case "BELI":
 			naPotezi = Igralec.BELI;
+			break;
 		}
 	}
 	

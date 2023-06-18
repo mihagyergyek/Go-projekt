@@ -77,7 +77,7 @@ public class Vodja {
 			}
 			//Kdo je bil na potezi
 			switch (dat.readLine().strip()) {
-			case "Crni":
+			case "Črni":
 				Vodja.igra.setNaPotezi("CRNI");
 				break;
 			case "Beli":
