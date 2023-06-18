@@ -171,6 +171,11 @@ public class Platno extends JPanel implements MouseListener, MouseMotionListener
 
 	@Override
 	public void keyPressed(KeyEvent e) {
+		if (Vodja.igra == null) return;
+		char tipka = e.getKeyChar();
+		if (tipka == ' ' && Vodja.clovekNaVrsti) {
+			Vodja.igrajClovekovoPotezo(null);
+		}
 	}
 
 	@Override
