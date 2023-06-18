@@ -29,4 +29,5 @@ Opozorilo: shranjevanje ne shrani prejšnjih pozicij v igri, zato se po odprtju 
 Igra uporablja običajna pravila [Go](https://en.wikipedia.org/wiki/Rules_of_Go). Med drugim to pomeni, da niso dovoljene poteze, ki bi ujele lastne žetone.
 Prav tako je končna pozicija plošče tista, ki ostane po tem, ko oba igralca preskočita potezo. To pomeni, da morata igralca ujeti tudi skupine, za katere oba menita, da niso žive.
 Računalniški igralec bo igro igral "do konca". Če ugotovi, da je njegov položaj preslab, bo vsako naslednjo potezo preskočil, dokler se nasprotnik ne odloči končati igre.
+Igralec svojo potezo preskoči z gumbom v meniju Poteza ali s pritiskom preslednice, ko je na vrsti.
 Točkovanje igre v teritorij igralca šteje tudi žetone, ki jih je igralec odigral. Igra na koncu z zeleno označi polja, ki pripadajo belemu, z rdečo pa polja, ki pripadajo črnemu igralcu.
