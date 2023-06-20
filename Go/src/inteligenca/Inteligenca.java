@@ -28,7 +28,7 @@ public class Inteligenca extends KdoIgra{
 	public OcenjenaPoteza alphabetaPoteze(Igra igra, int globina, int alpha, int beta, Igralec jaz) {
 		int ocena;
 		// Če sem računalnik, maksimiramo oceno z začetno oceno PORAZ
-		// Če sem pa človek, minimiziramo oceno z začetno oceno ZMAGA
+		// Če sem človek, minimiziramo oceno z začetno oceno ZMAGA
 		if (igra.naPotezi() == jaz) {ocena = PORAZ;} else {ocena = ZMAGA;}
 		List<Poteza> moznePoteze = igra.poteze();
 		Poteza kandidat = moznePoteze.get(0);

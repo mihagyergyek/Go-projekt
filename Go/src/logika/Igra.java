@@ -24,7 +24,7 @@ public class Igra {
 	public Set<Point> nadzorujeBeli = new HashSet<Point>();
 	
 	public Igra() {
-		// Zacetek nove igre
+		// Začetek nove igre
 		plosca = new Polje[N][N];
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < N; j++) {
@@ -259,7 +259,7 @@ public class Igra {
 	}
 	
 	/**
-	 * @return igralna plosca
+	 * @return igralna plošča
 	 */
 	public Polje[][] getPlosca () {
 		return plosca;
